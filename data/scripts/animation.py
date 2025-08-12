@@ -93,7 +93,8 @@ class Animation:
                     img = utils.load_img(os.path.join(directory, file_name))
                     cls.animation_db[animation_name] = {
                         None: img,
-                        'size': img.get_size()
+                        'size': img.get_size(),
+                        'rect': pygame.Rect(0, 0, *img.get_size()),
                     }  
                     # So that Animation can find it easily
                     # For ease of access outside of the class

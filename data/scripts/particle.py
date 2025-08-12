@@ -57,12 +57,6 @@ class ParticleGenerator:
             'vel_randomness': 0.5,
             'rate': 10
         },
-        'stab': {
-            'base_particle': Particle(action='stab', vel=(0, 0)),
-            'vel_randomness': 0,
-            'rate': 1,
-            'duration': 1,
-        },
         'angle test': {
             'base_particle': Particle(action='arrow', vel=(0, -2), acceleration=(0, 0.05), angled=True, color=(50, 100, 240)),
             'vel_randomness': 1,

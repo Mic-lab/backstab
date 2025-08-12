@@ -88,6 +88,9 @@ class PhysicsEntity(Entity):
         self.real_pos[axis] += self.vel[axis]
         direction = None
         for rect in rects:
+            # print(self.name)
+            # if self.name == 'side':
+            #     print(f'{self.rect=} colliding with {rect}?')
             if self.rect.colliderect(rect):
                 if axis == 0:
                     if self.vel[0] > 0:

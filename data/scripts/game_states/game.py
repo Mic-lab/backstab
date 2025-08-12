@@ -10,6 +10,7 @@ from ..timer import Timer
 from ..particle import Particle, ParticleGenerator
 from .. import sfx
 from .. import screen, config
+from ..game_map import GameMap
 import pygame
 import pygame.gfxdraw
 
@@ -18,7 +19,7 @@ class Game(State):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.player = Player(pos=(150, 30), name='side', action='idle')
+        self.player = Player(pos=(150, 40), name='side', action='idle')
         self.e_speed = 1.5
 
         self.enemies = []
@@ -28,13 +29,21 @@ class Game(State):
         )
         
         self.gens = []
+        self.game_map = GameMap()
 
     def sub_update(self):
 
-        self.handler.canvas.fill((20, 20, 20))
+        self.handler.canvas.fill((80, 80, 80))
+        self.handler.canvas.fill((40, 30, 50))
+
+        self.game_map.render(self.handler.canvas)
+
+        collisions = [tile.rect for tile in self.game_map.tiles]
+        # pygame.draw.rect(self.handler.canvas, (200, 200, 0), c)
+        # for c in collisions:
 
         for enemy in self.enemies:
-            enemy.update(self.player, [])
+            enemy.update(self.player, collisions)
             enemy.render(self.handler.canvas)
 
             dist = self.player.pos - enemy.pos
@@ -50,16 +59,16 @@ class Game(State):
                                int(angle)+1,
                                (0, 200, 200))
 
-        update_data = self.player.update(self.handler.inputs, [])
-        if update_data.get('stab'):
-            self.gens.append(
-                ParticleGenerator.from_template(self.player.rect.midbottom, 'stab')
-            )
+        update_data = self.player.update(self.handler.inputs, collisions)
 
         self.player.render(self.handler.canvas)
 
         self.gens = ParticleGenerator.update_generators(self.gens)
         for particle_gen in self.gens:
+            # particle_name = particle_gen.base_particle.animation.action
+            # if particle_name == 'stab':
+            #     for particle in particle_gen.particles:
+            #         particle.real_pos = self.player.rect.midbottom
             particle_gen.render(self.handler.canvas)
 
         text = [f'{round(self.handler.clock.get_fps())} fps',

@@ -9,8 +9,9 @@ class Timer:
         self.done = False
 
     def update(self):
-        self.frame += 1
-        self.done = self.frame == self.duration
+        if not self.done:
+            self.frame += 1
+        self.done = self.frame >= self.duration
 
     def get_ease_squared(self):
         # return 1 - (1 - self.frame) ** 2

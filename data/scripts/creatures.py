@@ -1,39 +1,85 @@
 import pygame
 import pygame.gfxdraw
 import random
-from .entity import PhysicsEntity
+from .entity import PhysicsEntity, Entity
 from math import pi, cos, sin
 from .timer import Timer
 from .particle import ParticleGenerator
 
 class Player(PhysicsEntity):
-    speed = 1.5
+
+    DASH_COOLDOWN = 20
+    DASH_DURATION = 12
+    DASH_SPEED = 6
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.stab = None
+        self.speed = 2
+        self.dash_cooldown_timer = Timer(Player.DASH_COOLDOWN)
+        self.dash_cooldown_timer.frame = Player.DASH_COOLDOWN
+        self.dash_timer = Timer(Player.DASH_DURATION)
+        self.dash_timer.frame = Player.DASH_DURATION
+
+    def render(self, surf, *args, **kwargs):
+        if self.stab: self.stab.render(surf)
+        super().render(surf, *args, **kwargs)
 
     def update(self, inputs, *args, **kwargs):
         output = {}
 
-        self.vel = [0, 0]
-        if inputs['held'].get('a'):
-            self.vel[0] -= self.speed
-            self.animation.flip[0] = True
-        elif inputs['held'].get('d'):
-            self.vel[0] += self.speed
-            self.animation.flip[0] = False
-        if inputs['held'].get('w'):
-            self.vel[1] -= self.speed
-        elif inputs['held'].get('s'):
-            self.vel[1] += self.speed
+        if not self.dash_timer.done:
+            print('dashing')
+            pass
+        else:
+            self.max_vel = self.speed
+            self.vel = pygame.Vector2()
+            if inputs['held'].get('a'):
+                self.vel[0] -= self.speed
+                self.animation.flip[0] = True
+            elif inputs['held'].get('d'):
+                self.vel[0] += self.speed
+                self.animation.flip[0] = False
+            if inputs['held'].get('w'):
+                self.vel[1] -= self.speed
+            elif inputs['held'].get('s'):
+                self.vel[1] += self.speed
 
-        if inputs['pressed'].get('space'):
-            output['stab'] = True
+
+        # print(self.dash_cooldown_timer, self.dash_cooldown_timer.done)
+        # print(f'{self.vel=} {type(self.vel)}')
+        if inputs['pressed'].get('space') and self.dash_cooldown_timer.done and self.vel != (0, 0):
+            self.max_vel = Player.DASH_SPEED
+            self.vel = pygame.Vector2(self.vel)
+            self.vel.scale_to_length(Player.DASH_SPEED)
+            self.dash_timer = Timer(Player.DASH_DURATION)
+            self.dash_cooldown_timer = Timer(Player.DASH_DURATION + Player.DASH_COOLDOWN)
 
         if any(self.vel):
             self.animation.set_action('run')
         else:
             self.animation.set_action('idle')
-        super().update([])
+
+        self.dash_cooldown_timer.update()
+        self.dash_timer.update()
+
+        super().update(*args, **kwargs)
+        
+        if self.stab:
+            self.stab.real_pos = self.stab_pos
+            done = self.stab.update()
+            if done: self.stab = None
+        else:
+            if inputs['pressed'].get('mouse1'):
+                self.stab = Entity(pos=(0,0), name='stab', action='idle')
+                self.stab = Entity(pos=self.stab_pos, name='stab', action='idle')
+                output['stab'] = True
 
         return output
+
+    @property
+    def stab_pos(self):
+        return self.rect.midbottom - pygame.Vector2(self.stab.img.get_width()*0.5, 0)
 
 
 
@@ -69,30 +115,37 @@ class Enemy(PhysicsEntity):
         return self.view_angle + 0.5*self.view_width*360
 
     def update(self, player, *args, **kwargs):
+        dist = player.pos - self.pos
+        if dist == 0:
+            player_angle = 0
+        else:
+            player_angle = pygame.Vector2(1, 0).angle_to(dist)
+            player_angle = dist.angle_to(pygame.Vector2(1, 0))
+            player_angle = pygame.Vector2(1, 0).angle_to(dist)
+        if player_angle < 0:
+            player_angle = 360 - abs(player_angle)
+            
+
         if self.mode_timer.done:
-            self.mode_timer = Timer(random.randint(30, 60))
+            self.mode_timer = Timer(random.randint(40, 41))
             if self.desire == 'run':
                 self.desire = 'idle'
             elif self.desire == 'idle':
                 self.desire = 'run'
-                self.run_angle = random.uniform(0, 2*pi)
+                # self.run_angle = random.uniform(player_angle-0.1, player_angle+0.1)
+                self.run_angle = player_angle
+                print(f'{self.run_angle=}')
         self.mode_timer.update()
 
         if self.desire == 'run':
             self.animation.set_action('run')
-            self.vel += 0.00*pygame.Vector2(cos(self.run_angle), sin(self.run_angle))
+            self.vel += 0.5*pygame.Vector2(cos(self.run_angle/180*pi),
+                                           sin(self.run_angle/180*pi))
             # self.vel -= 0.1*pygame.Vector2(cos(self.run_angle), sin(self.run_angle))
         else:
             self.animation.set_action('idle')
             self.vel *= 0.9
 
-        dist = player.pos - self.pos
-        player_angle = pygame.Vector2(1, 0).angle_to(dist)
-        player_angle = dist.angle_to(pygame.Vector2(1, 0))
-        player_angle = pygame.Vector2(1, 0).angle_to(dist)
-        if player_angle < 0:
-            player_angle = 360 - abs(player_angle)
-            
         # self.view_angle += 1
 
         # print(f'{self.view_angle=} {player_angle=}')
