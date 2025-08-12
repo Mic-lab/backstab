@@ -35,6 +35,7 @@ class Game(State):
 
         self.handler.canvas.fill((80, 80, 80))
         self.handler.canvas.fill((40, 30, 50))
+        self.handler.canvas.fill((50, 50, 60))
 
         self.game_map.render(self.handler.canvas)
 

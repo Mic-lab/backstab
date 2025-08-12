@@ -1,10 +1,28 @@
 import pygame
 import pygame.gfxdraw
 import random
+from .animation import Animation
 from .entity import PhysicsEntity, Entity
 from math import pi, cos, sin
 from .timer import Timer
 from .particle import ParticleGenerator
+
+class Stab(Entity):
+    # cache = {}
+    # angle_skip = 5
+    # for i in range(360/angle_skip):
+    #     angle = i*angle_skip
+    #     cache[angle] = pygame.transform.rotate(Animation.img_db)
+
+    def __init__(self, angle, *args, **kwargs):
+        self.angle = angle
+        super().__init__(*args, **kwargs)
+
+    @property
+    def img(self):
+        base_img = super().img
+        return pygame.transform.rotate(base_img, self.angle)
+
 
 class Player(PhysicsEntity):
 
@@ -66,20 +84,28 @@ class Player(PhysicsEntity):
         super().update(*args, **kwargs)
         
         if self.stab:
-            self.stab.real_pos = self.stab_pos
+            self.update_stab_pos()
             done = self.stab.update()
             if done: self.stab = None
         else:
             if inputs['pressed'].get('mouse1'):
-                self.stab = Entity(pos=(0,0), name='stab', action='idle')
-                self.stab = Entity(pos=self.stab_pos, name='stab', action='idle')
+                mouse_angle = (-pygame.Vector2(self.rect.center) + inputs['mouse pos']).angle_to(pygame.Vector2(0, 1))
+                self.stab = Stab(angle=mouse_angle, pos=(0,0), name='stab', action='idle')
+                self.update_stab_pos()
                 output['stab'] = True
 
         return output
 
-    @property
-    def stab_pos(self):
-        return self.rect.midbottom - pygame.Vector2(self.stab.img.get_width()*0.5, 0)
+    def get_angle_pos(self, angle, radius=20):
+        return self.rect.center + radius*pygame.Vector2(sin(angle/180*pi),
+                                                        cos(angle/180*pi))
+
+    def update_stab_pos(self):
+        # r = self.stab.rect.copy()
+        r = pygame.Rect(0,0, *self.stab.img.get_size())
+        r.center = self.get_angle_pos(self.stab.angle)
+        self.stab.real_pos = r.topleft
+        # self.stab.real_pos = self.get_angle_pos(self.stab.angle)
 
 
 
