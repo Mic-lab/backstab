@@ -5,6 +5,9 @@ uniform float transitionTimer;
 uniform int transitionState;
 uniform float shakeTimer = -1.0;
 uniform float caTimer = -1.0;
+
+uniform vec3 los[64];
+
 in vec2 uvs;
 out vec4 f_color;
 
@@ -25,6 +28,20 @@ float linearEase(float x) {
 void main() {
     f_color = vec4(texture(canvasTex, uvs).rgb, 1.0);
     float centerDist = distance(uvs, vec2(0.5, 0.5));
+
+    // Line of sights
+    for (int i = 0; i <= los.length(); i++) {
+        vec2 losPos = vec2(los[i].xy);
+        float type = los[i].z;
+
+        // dummy value
+        if (type == -1) {
+        }
+
+        // ...
+        else if (type == 0) {
+        }
+    }
 
     // Blurry shake
     if (shakeTimer >= 0) {

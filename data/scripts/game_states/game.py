@@ -28,29 +28,60 @@ class Game(State):
             Enemy(pos=(200, 200), name='civilian', action='idle'),
             Enemy(pos=(250, 200), name='civilian', action='idle'),
             Enemy(pos=(250, 100), name='civilian', action='idle'),
-            Enemy(pos=(200, 100), name='civilian', action='idle'),
+            Enemy(pos=(250, 100), name='civilian', action='idle'),
         ])
+
+        self.dead_enemies = []
         
         self.gens = []
         self.game_map = GameMap()
+        self.trails = []
+        self.los = []
 
     def sub_update(self):
 
-        self.handler.canvas.fill((80, 80, 80))
-        self.handler.canvas.fill((40, 30, 50))
-        self.handler.canvas.fill((50, 50, 60))
+        # self.handler.canvas.fill((80, 80, 80))
+        # self.handler.canvas.fill((40, 30, 50))
+        # self.handler.canvas.fill((50, 50, 60))
+        self.handler.canvas.fill(config.COLORS['ground'])
 
         self.game_map.render(self.handler.canvas)
 
-        collisions = [tile.rect for tile in self.game_map.tiles]
+        collisions = []
+        for tile in self.game_map.tiles:
+            if tile.collision:
+                collisions.append(tile.rect)
 
         # for c in collisions:
         #     pygame.draw.rect(self.handler.canvas, (200, 200, 0), c)
+
+        new_trails = []
+        for trail in self.trails:
+            img = trail['surf']
+            self.handler.canvas.blit(img, trail['pos'])
+            new_alpha = img.get_alpha() - trail['change']
+            if new_alpha > 0:
+                img.set_alpha(new_alpha)
+                new_trails.append(trail)
+        self.trails = new_trails
+
+        new_dead_enemies = []
+        for enemy in self.dead_enemies:
+            enemy.animation.set_action('idle')
+            enemy.render(self.handler.canvas)
+            done = enemy.stab.update()
+            if not done:
+                new_dead_enemies.append(enemy)
+                enemy.stab.render(self.handler.canvas)
+        self.dead_enemies = new_dead_enemies
 
         new_enemies = []
         for enemy in self.enemies:
             update_data = enemy.update(self.player, self.enemies, collisions)
             if update_data.get('dead'):
+                self.dead_enemies.append(enemy)
+                stab_w = animation.Animation.animation_db['stab']['rect'].w
+                enemy.stab = Entity(enemy.rect.center- pygame.Vector2(stab_w, 0), 'stab', 'idle')
                 continue
 
             enemy.render(self.handler.canvas)
@@ -73,6 +104,9 @@ class Game(State):
 
         update_data = self.player.update(self.handler.inputs, collisions)
 
+        if update_data.get('trail'):
+            self.trails.append(update_data['trail'])
+
         self.player.render(self.handler.canvas)
 
         self.gens = ParticleGenerator.update_generators(self.gens)
@@ -88,3 +122,5 @@ class Game(State):
                 # pprint.pformat(Particle.cache)
                 ]
         self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (0, 0))
+
+        shader_handler.vars['los'] = self.los

@@ -33,7 +33,7 @@ class Player(PhysicsEntity):
 
     DASH_COOLDOWN = 20
     DASH_DURATION = 12
-    DASH_SPEED = 6
+    DASH_SPEED = 7
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -43,22 +43,30 @@ class Player(PhysicsEntity):
         self.dash_cooldown_timer.frame = Player.DASH_COOLDOWN
         self.dash_timer = Timer(Player.DASH_DURATION)
         self.dash_timer.frame = Player.DASH_DURATION
-        self.stab_radius = 40
+        self.dash_timer.done = True
+        self.stab_radius = 50
 
     def render(self, surf, *args, **kwargs):
         # if self.stab: self.stab.render(surf)
-        s = pygame.Surface((self.stab_radius, self.stab_radius), pygame.SRCALPHA)
-        pygame.draw.circle(s, (200, 200, 255), (self.stab_radius*0.5, self.stab_radius*0.5), self.stab_radius*0.5)
+        s = pygame.Surface((self.stab_radius*2, self.stab_radius*2), pygame.SRCALPHA)
+        pygame.draw.circle(s, (200, 200, 255), (self.stab_radius, self.stab_radius), self.stab_radius-8)  # just to feel fair for player cause it uses enemy rect (FIXME)
         s.set_alpha(50)
-        surf.blit(s, self.rect.center - 0.5*pygame.Vector2(self.stab_radius, self.stab_radius))
+        surf.blit(s, self.rect.center - pygame.Vector2(self.stab_radius, self.stab_radius))
         super().render(surf, *args, **kwargs)
 
     def update(self, inputs, *args, **kwargs):
         output = {}
 
         if not self.dash_timer.done:
-            print('dashing')
-            pass
+            if self.dash_timer.frame % 2 == 0:
+                trail_surf = self.img.copy()
+                trail_surf.set_alpha(150)
+                trail = {
+                    'surf': trail_surf,
+                    'pos': self.pos.copy(),
+                    'change': 20,
+                }
+                output['trail'] = trail
         else:
             self.max_vel = self.speed
             self.vel = pygame.Vector2()
@@ -125,7 +133,7 @@ class Enemy(PhysicsEntity):
     STATS = {
         'civilian': {
             'entity':{
-                'max_vel': 1,
+                'max_vel': 0.7,
             },
             'enemy':{
                 'turn_speed': 2,
@@ -154,7 +162,7 @@ class Enemy(PhysicsEntity):
     def update(self, player, enemies, *args, **kwargs):
         output = {}
 
-        self.player_dist = player.pos - self.pos
+        self.player_dist = player.rect.center - pygame.Vector2(self.rect.center)
         if self.player_dist == 0:
             player_angle = 0
         else:
@@ -164,33 +172,36 @@ class Enemy(PhysicsEntity):
         if player_angle < 0:
             player_angle = 360 - abs(player_angle)
             
+        self.run_angle = player_angle
 
-        if self.mode_timer.done:
-            self.mode_timer = Timer(random.randint(40, 41))
-            if self.desire == 'run':
-                self.desire = 'idle'
-            elif self.desire == 'idle':
-                self.desire = 'run'
-                # self.run_angle = random.uniform(player_angle-0.1, player_angle+0.1)
-                self.run_angle = player_angle
-                print(f'{self.run_angle=}')
-        self.mode_timer.update()
+        # if self.mode_timer.done:
+        #     self.mode_timer = Timer(random.randint(40, 41))
+        #     if self.desire == 'run':
+        #         self.desire = 'idle'
+        #     elif self.desire == 'idle':
+        #         self.desire = 'run'
+        #         # self.run_angle = random.uniform(player_angle-0.1, player_angle+0.1)
+        #         print(f'{self.run_angle=}')
+        # self.mode_timer.update()
+        # if self.desire == 'run':
+        #     self.animation.set_action('run')
+        #     self.vel += 0.5*pygame.Vector2(cos(self.run_angle/180*pi),
+        #                                    sin(self.run_angle/180*pi))
+        #     # self.vel -= 0.1*pygame.Vector2(cos(self.run_angle), sin(self.run_angle))
+        # else:
+        #     self.animation.set_action('idle')
+        #     self.vel *= 0.9
 
-        if self.desire == 'run':
-            self.animation.set_action('run')
-            self.vel += 0.5*pygame.Vector2(cos(self.run_angle/180*pi),
-                                           sin(self.run_angle/180*pi))
-            # self.vel -= 0.1*pygame.Vector2(cos(self.run_angle), sin(self.run_angle))
-        else:
-            self.animation.set_action('idle')
-            self.vel *= 0.9
+        self.animation.set_action('run')
+        self.vel += 0.05*pygame.Vector2(cos(self.run_angle/180*pi),
+                                       sin(self.run_angle/180*pi))
 
         for e in enemies:
             if e is self:
                 continue
             d = pygame.Vector2(self.rect.center) - e.rect.center
             if d.length() < 20:
-                self.vel += d*0.1
+                self.vel += d*0.05
 
 
         # self.view_angle += 1
@@ -226,6 +237,7 @@ class Enemy(PhysicsEntity):
 
         hit_output = self.process_hits(player)
         output = output | hit_output
+                
 
         super().update(*args, **kwargs)
         return output
@@ -235,16 +247,27 @@ class Enemy(PhysicsEntity):
         if player.stab:
 
             # if self.rect.colliderect(player.stab.rect):
-            if self.player_dist.length() < player.stab_radius:
-                if not self.see_player:
-                    output['dead'] = True
+            if not self.see_player:
+                if self.player_dist.length() < player.stab_radius:
+                        output['dead'] = True
+
         return output
 
     def render(self, surf, *args, **kwargs):
         super().render(surf, *args, **kwargs)
         color = (255, 0, 50) if self.see_player else (200, 200, 200)
-        print(f'{self.rect.center=} {self.angle_1=} {self.angle_2=}')
+
+        # if not self.see_player or 1:
+            # if self.player_dist.length() < self.player.stab_radius:
+                # color = (0, 0, 255)
+                # for i in range(1, 50):
+                #     pygame.gfxdraw.pie(surf, *self.rect.center, i,
+                #                        int(self.angle_1),
+                #                        int(self.angle_2),
+                #                        color)
+
         pygame.gfxdraw.pie(surf, *self.rect.center, 50,
                            int(self.angle_1),
                            int(self.angle_2),
                            color)
+

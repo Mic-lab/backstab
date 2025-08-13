@@ -1,37 +1,37 @@
 { "frames": [
    {
     "filename": "idle",
-    "frame": { "x": 0, "y": 0, "w": 18, "h": 30 },
+    "frame": { "x": 0, "y": 0, "w": 16, "h": 21 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 21, "y": 15, "w": 18, "h": 30 },
+    "spriteSourceSize": { "x": 21, "y": 15, "w": 16, "h": 21 },
     "sourceSize": { "w": 64, "h": 64 },
     "duration": 200
    },
    {
     "filename": "idle",
-    "frame": { "x": 18, "y": 0, "w": 18, "h": 30 },
+    "frame": { "x": 16, "y": 0, "w": 16, "h": 21 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 21, "y": 15, "w": 18, "h": 30 },
+    "spriteSourceSize": { "x": 21, "y": 15, "w": 16, "h": 21 },
     "sourceSize": { "w": 64, "h": 64 },
     "duration": 100
    },
    {
     "filename": "run",
-    "frame": { "x": 0, "y": 30, "w": 18, "h": 30 },
+    "frame": { "x": 0, "y": 21, "w": 16, "h": 21 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 21, "y": 15, "w": 18, "h": 30 },
+    "spriteSourceSize": { "x": 21, "y": 15, "w": 16, "h": 21 },
     "sourceSize": { "w": 64, "h": 64 },
     "duration": 100
    },
    {
     "filename": "run",
-    "frame": { "x": 18, "y": 30, "w": 18, "h": 30 },
+    "frame": { "x": 16, "y": 21, "w": 16, "h": 21 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 21, "y": 15, "w": 18, "h": 30 },
+    "spriteSourceSize": { "x": 21, "y": 15, "w": 16, "h": 21 },
     "sourceSize": { "w": 64, "h": 64 },
     "duration": 100
    }
@@ -41,7 +41,7 @@
   "version": "1.x-dev",
   "image": "civilian.png",
   "format": "RGBA8888",
-  "size": { "w": 36, "h": 60 },
+  "size": { "w": 32, "h": 42 },
   "scale": "1",
   "slices": [
   ]

@@ -2,7 +2,9 @@ from .entity import Entity
 from . import config
 
 class Tile(Entity):
-    pass
+    def __init__(self, collision, *args, **kwargs):
+        self.collision = collision
+        super().__init__(*args, **kwargs)
 
 class GameMap:
 
@@ -18,6 +20,13 @@ class GameMap:
     1111111111111111
     '''
 
+    TILE_MAP = {
+            '0': 'ground',
+            '1': 'wall',
+        }
+
+    COLLISION_TILES = ('1',)
+
     def __init__(self):
         self.tiles = []
 
@@ -25,9 +34,11 @@ class GameMap:
         print(array_layout)
         for i, row in enumerate(array_layout):
             for j, str_tile in enumerate(row):
-                if str_tile == '1':
-                    self.tiles.append(Tile(pos=(j*config.TILE_SIZE[0],
-                                                i*config.TILE_SIZE[1]), name='wall'))
+                name = GameMap.TILE_MAP[str_tile]
+                self.tiles.append(Tile(pos=(j*config.TILE_SIZE[0],
+                                            i*config.TILE_SIZE[1]), name=name,
+                                       collision=str_tile in GameMap.COLLISION_TILES),
+                                  )
 
     def render(self, surf):
         for tile in self.tiles:

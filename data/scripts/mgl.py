@@ -12,6 +12,13 @@ def update_tex(tex, surf):
 
 class ShaderHandler:
 
+    ARRAY_HANDLER = {
+        'los': {
+            'size': 64,
+            'empty': [-1, -1, -1]
+        }
+    }
+
     def __init__(self):
         vert_shader = read_txt('data/scripts/shaders/vert.glsl')
         frag_shader = read_txt('data/scripts/shaders/frag.glsl')
@@ -56,7 +63,17 @@ class ShaderHandler:
 
     def transfer_vars(self):
         for key, val in self.vars.items():
-            self.program[key] = val
+            if isinstance(val, list):
+                l = []
+                for _ in range(ShaderHandler.ARRAY_HANDLER[key]['size']):
+                    l.append(ShaderHandler.ARRAY_HANDLER[key]['empty'])
+                for i, item in enumerate(val):
+                    l[i] = item
+                # print(f'{l=}')
+                self.program[key] = l
+            
+            else:
+                self.program[key] = val
 
     def surf2tex(self, surf):
         tex = self.ctx.texture(surf.get_size(), 4)

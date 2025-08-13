@@ -1,3 +1,6 @@
+- end enemy mid stab
+- stab radius uses the center of the enemy
+
 - comment
 
 - entity

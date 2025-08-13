@@ -36,7 +36,7 @@ class Entity:
         return self.animation.update()
 
     def render(self, surf):
-        # pygame.draw.rect(surf, (255, 0, 0), self.rect, width=1)
+        pygame.draw.rect(surf, (255, 0, 0), self.rect, width=1)
         surf.blit(self.img, self.pos)
 
     def __repr__(self):
