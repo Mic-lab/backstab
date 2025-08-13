@@ -146,7 +146,7 @@ class Enemy(PhysicsEntity):
         super().__init__(*args, **kwargs)
 
         self.view_angle = starting_view
-        self.view_width = 0.15
+        self.view_width = 0.1
         self.desire = 'idle'
         self.mode_timer = Timer(60)
         self.stats = Enemy.STATS[kwargs['name']]['enemy']
@@ -240,7 +240,9 @@ class Enemy(PhysicsEntity):
 
         # optional: check dist
         if self.angle_1 > self.angle_2:
-            self.see_player = self.angle_1 > player_angle or self.angle_2 < player_angle
+            self.see_player = self.angle_1 < player_angle or self.angle_2 > player_angle
+            print(f'{self.angle_1} > {player_angle} or {self.angle_2} < {player_angle}')
+            print(self.angle_1 > player_angle or self.angle_2 < player_angle)
         else:
             self.see_player = self.angle_1 < player_angle < self.angle_2
 

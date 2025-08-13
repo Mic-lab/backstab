@@ -16,7 +16,10 @@ const float PI = 3.14159265359;
 const vec2 gridSize = vec2(64, 64);
 const float caCoef = 0.005;
 const float shakeCoef = 0.01;
+
+// TODO: get these from config.py and update scale 
 const vec2 canvasSize = vec2(512, 288);
+const int scale = 3;
 
 vec2 rotateVec(vec2 vec, float theta) {
     return vec.x * vec2(cos(theta), sin(theta))
@@ -31,6 +34,21 @@ void main() {
     f_color = vec4(texture(canvasTex, uvs).rgb, 1.0);
     float centerDist = distance(uvs, vec2(0.5, 0.5));
 
+    // vec2 uvsPx = vec2(
+    //     floor(uvs.x * canvasSize.x / scale) * scale / canvasSize.x,
+    //     floor(uvs.y * canvasSize.y / scale) * scale / canvasSize.y
+    // );
+
+    // vec2 uvsPx = vec2(
+    //     floor(uvs.x * canvasSize.x / scale) * scale / canvasSize.x,
+    //     floor(uvs.y * canvasSize.y / scale) * scale / canvasSize.y
+    // );
+    
+    vec2 uvsPx = vec2(
+        floor(uvs.x * canvasSize.x) / canvasSize.x,
+        floor(uvs.y * canvasSize.y) / canvasSize.y
+    );
+
     // Line of sights
     for (int i = 0; i <= los.length(); i++) {
         vec2 losPos = vec2(los[i].xy);
@@ -41,9 +59,9 @@ void main() {
         int type = losType[i];
 
         vec4 color;
-        vec2 delta = -losPos + uvs;
+        vec2 delta = -losPos + uvsPx;
         delta.y *= canvasSize.y/canvasSize.x;
-        float mixIntensity = 0.3-length(delta)*2;
+        float mixIntensity = 0.4-length(delta)*1.5;
 
         // dummy value
         if (type == -1) {
@@ -51,11 +69,11 @@ void main() {
 
         // see player
         else if (type == 0) {
-            color = vec4(1, 0, mixIntensity*2, 0);
+            color = vec4(1, 0.2, mixIntensity*2, 0);
         }
 
         else if (type == 1) {
-            color = vec4(0, 1, mixIntensity*2, 0);
+            color = vec4(0.2, 1, mixIntensity*2, 0);
         }
 
 
@@ -64,7 +82,7 @@ void main() {
         // f_color = mix(f_color, vec4(angle / 2 / PI, 0, 0, 0), 0.5);
         // f_color = mix(f_color, vec4(angle2 / 2 / PI, 0, 0, 0), 0.5);
 
-        if (mixIntensity > 0) {
+        if (mixIntensity > 0 && length(delta) > 0.02) {
             if (angle1 > angle2) {
                 if ((angle > angle1) || (angle < angle2)) {
                     f_color = mix(f_color, color, mixIntensity);
