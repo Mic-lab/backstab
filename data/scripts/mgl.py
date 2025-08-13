@@ -15,8 +15,12 @@ class ShaderHandler:
     ARRAY_HANDLER = {
         'los': {
             'size': 64,
-            'empty': [-1, -1, -1]
-        }
+            'empty': [-1, -1, -1, -1],
+        },
+        'losType': {
+            'size': 64,
+            'empty': -1,
+        },
     }
 
     def __init__(self):
@@ -70,6 +74,7 @@ class ShaderHandler:
                 for i, item in enumerate(val):
                     l[i] = item
                 # print(f'{l=}')
+                # print(f'{key=} {l=}')
                 self.program[key] = l
             
             else:

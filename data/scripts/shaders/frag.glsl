@@ -6,7 +6,8 @@ uniform int transitionState;
 uniform float shakeTimer = -1.0;
 uniform float caTimer = -1.0;
 
-uniform vec3 los[64];
+uniform vec4 los[64];
+uniform int losType[64];
 
 in vec2 uvs;
 out vec4 f_color;
@@ -15,6 +16,7 @@ const float PI = 3.14159265359;
 const vec2 gridSize = vec2(64, 64);
 const float caCoef = 0.005;
 const float shakeCoef = 0.01;
+const vec2 canvasSize = vec2(512, 288);
 
 vec2 rotateVec(vec2 vec, float theta) {
     return vec.x * vec2(cos(theta), sin(theta))
@@ -32,15 +34,54 @@ void main() {
     // Line of sights
     for (int i = 0; i <= los.length(); i++) {
         vec2 losPos = vec2(los[i].xy);
-        float type = los[i].z;
+        float angle1 = 2*PI-(los[i][3] / 180 * PI);
+        float angle2 = 2*PI-(los[i][2] / 180 * PI);
+
+
+        int type = losType[i];
+
+        vec4 color;
+        vec2 delta = -losPos + uvs;
+        delta.y *= canvasSize.y/canvasSize.x;
+        float mixIntensity = 0.3-length(delta)*2;
 
         // dummy value
         if (type == -1) {
         }
 
-        // ...
+        // see player
         else if (type == 0) {
+            color = vec4(1, 0, mixIntensity*2, 0);
         }
+
+        else if (type == 1) {
+            color = vec4(0, 1, mixIntensity*2, 0);
+        }
+
+
+
+        float angle = PI + atan(delta.y, -delta.x);
+        // f_color = mix(f_color, vec4(angle / 2 / PI, 0, 0, 0), 0.5);
+        // f_color = mix(f_color, vec4(angle2 / 2 / PI, 0, 0, 0), 0.5);
+
+        if (mixIntensity > 0) {
+            if (angle1 > angle2) {
+                if ((angle > angle1) || (angle < angle2)) {
+                    f_color = mix(f_color, color, mixIntensity);
+                }
+            }
+
+            else {
+                if ((angle > angle1 && angle < angle2)) {
+                    f_color = mix(f_color, color, mixIntensity);
+                }
+            }
+        }
+
+
+
+
+
     }
 
     // Blurry shake

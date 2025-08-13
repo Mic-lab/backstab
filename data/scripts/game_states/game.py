@@ -11,6 +11,7 @@ from ..particle import Particle, ParticleGenerator
 from .. import sfx
 from .. import screen, config
 from ..game_map import GameMap
+from ..health import Health
 import pygame
 import pygame.gfxdraw
 
@@ -21,6 +22,7 @@ class Game(State):
 
         self.player = Player(pos=(150, 40), name='side', action='idle')
         self.e_speed = 1.5
+        self.health = Health()
 
         self.enemies = []
 
@@ -36,9 +38,10 @@ class Game(State):
         self.gens = []
         self.game_map = GameMap()
         self.trails = []
-        self.los = []
 
     def sub_update(self):
+        shader_handler.vars['los'] = []
+        shader_handler.vars['losType'] = []
 
         # self.handler.canvas.fill((80, 80, 80))
         # self.handler.canvas.fill((40, 30, 50))
@@ -85,21 +88,25 @@ class Game(State):
                 continue
 
             enemy.render(self.handler.canvas)
+            shader_handler.vars['los'].append((
+                enemy.rect.centerx / config.CANVAS_SIZE[0],
+                enemy.rect.centery / config.CANVAS_SIZE[1],
+                enemy.angle_1, enemy.angle_2))
+            print(f'{enemy.angle_1=} {enemy.angle_2=}')
+            shader_handler.vars['losType'].append(0 if enemy.see_player else 1)
 
             dist = self.player.pos - enemy.pos
             angle = dist.angle_to(pygame.Vector2(1, 0))
             angle = pygame.Vector2(1, 0).angle_to(dist)
             if angle < 0:
                 angle = 360 - abs(angle)
-            # angle = dist.angle_to(pygame.Vector2(1, 0))
-            # print(f'{angle=}')
-            pygame.gfxdraw.pie(self.handler.canvas, *enemy.rect.center, 50,
-                               int(angle),
-
-                               int(angle)+1,
-                               (0, 200, 200))
-
+            # pygame.gfxdraw.pie(self.handler.canvas, *enemy.rect.center, 50,
+            #                    int(angle),
+            #
+            #                    int(angle)+1,
+            #                    (0, 200, 200))
             new_enemies.append(enemy)
+
         self.enemies = new_enemies
 
         update_data = self.player.update(self.handler.inputs, collisions)
@@ -117,10 +124,11 @@ class Game(State):
             #         particle.real_pos = self.player.rect.midbottom
             particle_gen.render(self.handler.canvas)
 
+        self.health.update()
+        self.health.render(self.handler.canvas)
+
         text = [f'{round(self.handler.clock.get_fps())} fps',
                 f'vel = {self.player.vel}',
                 # pprint.pformat(Particle.cache)
                 ]
-        self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (0, 0))
-
-        shader_handler.vars['los'] = self.los
+        self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (400, 0))

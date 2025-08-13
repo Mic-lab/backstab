@@ -49,7 +49,7 @@ class Player(PhysicsEntity):
     def render(self, surf, *args, **kwargs):
         # if self.stab: self.stab.render(surf)
         s = pygame.Surface((self.stab_radius*2, self.stab_radius*2), pygame.SRCALPHA)
-        pygame.draw.circle(s, (200, 200, 255), (self.stab_radius, self.stab_radius), self.stab_radius-8)  # just to feel fair for player cause it uses enemy rect (FIXME)
+        pygame.draw.circle(s, (200, 200, 255), (self.stab_radius, self.stab_radius), self.stab_radius-12, width=2)  # removing from stab radius just to feel fair for player cause it uses enemy rect (FIXME)
         s.set_alpha(50)
         surf.blit(s, self.rect.center - pygame.Vector2(self.stab_radius, self.stab_radius))
         super().render(surf, *args, **kwargs)
@@ -153,11 +153,17 @@ class Enemy(PhysicsEntity):
 
     @property
     def angle_1(self):
-        return self.view_angle - 0.5*self.view_width*360
+        angle_1 = self.view_angle - 0.5*self.view_width*360
+        angle_1 = angle_1 % 360
+        if angle_1 < 0: angle_1 = 360 - abs(angle_1)
+        return angle_1
 
     @property
     def angle_2(self):
-        return self.view_angle + 0.5*self.view_width*360
+        angle_2 = self.view_angle + 0.5*self.view_width*360
+        angle_2 = angle_2 % 360
+        if angle_2 < 0: angle_2 = 360 - abs(angle_2)
+        return angle_2
 
     def update(self, player, enemies, *args, **kwargs):
         output = {}
@@ -233,7 +239,10 @@ class Enemy(PhysicsEntity):
         self.view_angle = self.view_angle % 360
 
         # optional: check dist
-        self.see_player = self.angle_1 < player_angle < self.angle_2
+        if self.angle_1 > self.angle_2:
+            self.see_player = self.angle_1 > player_angle or self.angle_2 < player_angle
+        else:
+            self.see_player = self.angle_1 < player_angle < self.angle_2
 
         hit_output = self.process_hits(player)
         output = output | hit_output
@@ -266,8 +275,9 @@ class Enemy(PhysicsEntity):
                 #                        int(self.angle_2),
                 #                        color)
 
-        pygame.gfxdraw.pie(surf, *self.rect.center, 50,
-                           int(self.angle_1),
-                           int(self.angle_2),
-                           color)
+        # bye bye!
+        # pygame.gfxdraw.pie(surf, *self.rect.center, 50,
+        #                    int(self.angle_1),
+        #                    int(self.angle_2),
+        #                    color)
 
