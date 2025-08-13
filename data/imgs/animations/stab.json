@@ -1,30 +1,30 @@
 { "frames": [
    {
     "filename": "idle",
-    "frame": { "x": 0, "y": 0, "w": 48, "h": 7 },
+    "frame": { "x": 0, "y": 0, "w": 28, "h": 8 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 8, "y": 29, "w": 48, "h": 7 },
+    "spriteSourceSize": { "x": 18, "y": 26, "w": 28, "h": 8 },
     "sourceSize": { "w": 64, "h": 64 },
     "duration": 100
    },
    {
     "filename": "idle",
-    "frame": { "x": 48, "y": 0, "w": 48, "h": 7 },
+    "frame": { "x": 28, "y": 0, "w": 28, "h": 8 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 8, "y": 29, "w": 48, "h": 7 },
+    "spriteSourceSize": { "x": 18, "y": 26, "w": 28, "h": 8 },
     "sourceSize": { "w": 64, "h": 64 },
-    "duration": 100
+    "duration": 50
    },
    {
     "filename": "idle",
-    "frame": { "x": 96, "y": 0, "w": 48, "h": 7 },
+    "frame": { "x": 56, "y": 0, "w": 28, "h": 8 },
     "rotated": false,
     "trimmed": true,
-    "spriteSourceSize": { "x": 8, "y": 29, "w": 48, "h": 7 },
+    "spriteSourceSize": { "x": 18, "y": 26, "w": 28, "h": 8 },
     "sourceSize": { "w": 64, "h": 64 },
-    "duration": 100
+    "duration": 50
    }
  ],
  "meta": {
@@ -32,9 +32,10 @@
   "version": "1.x-dev",
   "image": "stab.png",
   "format": "RGBA8888",
-  "size": { "w": 144, "h": 7 },
+  "size": { "w": 84, "h": 8 },
   "scale": "1",
   "slices": [
+   { "name": "rect", "color": "#0000ffff", "keys": [{ "frame": 0, "bounds": {"x": 6, "y": 5, "w": 52, "h": 48 } }, { "frame": 1, "bounds": {"x": 6, "y": 5, "w": 52, "h": 48 } }] }
   ]
  }
 }

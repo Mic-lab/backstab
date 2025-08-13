@@ -24,9 +24,12 @@ class Game(State):
 
         self.enemies = []
 
-        self.enemies.append(
-            Enemy(pos=(200, 200), name='civilian', action='idle')
-        )
+        self.enemies.extend([
+            Enemy(pos=(200, 200), name='civilian', action='idle'),
+            Enemy(pos=(250, 200), name='civilian', action='idle'),
+            Enemy(pos=(250, 100), name='civilian', action='idle'),
+            Enemy(pos=(200, 100), name='civilian', action='idle'),
+        ])
         
         self.gens = []
         self.game_map = GameMap()
@@ -40,11 +43,16 @@ class Game(State):
         self.game_map.render(self.handler.canvas)
 
         collisions = [tile.rect for tile in self.game_map.tiles]
-        # pygame.draw.rect(self.handler.canvas, (200, 200, 0), c)
-        # for c in collisions:
 
+        # for c in collisions:
+        #     pygame.draw.rect(self.handler.canvas, (200, 200, 0), c)
+
+        new_enemies = []
         for enemy in self.enemies:
-            enemy.update(self.player, collisions)
+            update_data = enemy.update(self.player, self.enemies, collisions)
+            if update_data.get('dead'):
+                continue
+
             enemy.render(self.handler.canvas)
 
             dist = self.player.pos - enemy.pos
@@ -59,6 +67,9 @@ class Game(State):
 
                                int(angle)+1,
                                (0, 200, 200))
+
+            new_enemies.append(enemy)
+        self.enemies = new_enemies
 
         update_data = self.player.update(self.handler.inputs, collisions)
 

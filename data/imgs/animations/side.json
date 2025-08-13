@@ -9,8 +9,44 @@
     "duration": 200
    },
    {
+    "filename": "idle",
+    "frame": { "x": 19, "y": 0, "w": 19, "h": 26 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 22, "y": 18, "w": 19, "h": 26 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 200
+   },
+   {
+    "filename": "idle",
+    "frame": { "x": 38, "y": 0, "w": 19, "h": 26 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 22, "y": 18, "w": 19, "h": 26 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 200
+   },
+   {
     "filename": "run",
     "frame": { "x": 0, "y": 26, "w": 19, "h": 26 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 22, "y": 18, "w": 19, "h": 26 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "run",
+    "frame": { "x": 19, "y": 26, "w": 19, "h": 26 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 22, "y": 18, "w": 19, "h": 26 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "run",
+    "frame": { "x": 38, "y": 26, "w": 19, "h": 26 },
     "rotated": false,
     "trimmed": true,
     "spriteSourceSize": { "x": 22, "y": 18, "w": 19, "h": 26 },
@@ -23,7 +59,7 @@
   "version": "1.x-dev",
   "image": "side.png",
   "format": "RGBA8888",
-  "size": { "w": 19, "h": 52 },
+  "size": { "w": 57, "h": 52 },
   "scale": "1",
   "slices": [
   ]

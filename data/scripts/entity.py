@@ -62,6 +62,7 @@ class PhysicsEntity(Entity):
     def update(self, rects=None):
         output = super().update()
 
+        self.old_rect = self.rect
         self.move(rects)
         self.vel += self.acceleration
         if self.vel.length() > self.max_vel:
@@ -88,6 +89,9 @@ class PhysicsEntity(Entity):
         self.real_pos[axis] += self.vel[axis]
         direction = None
         for rect in rects:
+            # print(f'{self.rect=} {self.old_rect=}')
+            if rect == self.old_rect:
+                continue
             # print(self.name)
             # if self.name == 'side':
             #     print(f'{self.rect=} colliding with {rect}?')

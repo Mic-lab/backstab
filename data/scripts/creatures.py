@@ -19,6 +19,11 @@ class Stab(Entity):
         super().__init__(*args, **kwargs)
 
     @property
+    def rect(self):
+        self._rect = pygame.Rect(*self.pos, 32, 32)
+        return self._rect
+
+    @property
     def img(self):
         base_img = super().img
         return pygame.transform.rotate(base_img, self.angle)
@@ -38,9 +43,14 @@ class Player(PhysicsEntity):
         self.dash_cooldown_timer.frame = Player.DASH_COOLDOWN
         self.dash_timer = Timer(Player.DASH_DURATION)
         self.dash_timer.frame = Player.DASH_DURATION
+        self.stab_radius = 40
 
     def render(self, surf, *args, **kwargs):
-        if self.stab: self.stab.render(surf)
+        # if self.stab: self.stab.render(surf)
+        s = pygame.Surface((self.stab_radius, self.stab_radius), pygame.SRCALPHA)
+        pygame.draw.circle(s, (200, 200, 255), (self.stab_radius*0.5, self.stab_radius*0.5), self.stab_radius*0.5)
+        s.set_alpha(50)
+        surf.blit(s, self.rect.center - 0.5*pygame.Vector2(self.stab_radius, self.stab_radius))
         super().render(surf, *args, **kwargs)
 
     def update(self, inputs, *args, **kwargs):
@@ -83,16 +93,17 @@ class Player(PhysicsEntity):
 
         super().update(*args, **kwargs)
         
-        if self.stab:
-            self.update_stab_pos()
-            done = self.stab.update()
-            if done: self.stab = None
-        else:
-            if inputs['pressed'].get('mouse1'):
-                mouse_angle = (-pygame.Vector2(self.rect.center) + inputs['mouse pos']).angle_to(pygame.Vector2(0, 1))
-                self.stab = Stab(angle=mouse_angle, pos=(0,0), name='stab', action='idle')
-                self.update_stab_pos()
-                output['stab'] = True
+        # if self.stab:
+        #     self.update_stab_pos()
+        #     done = self.stab.update()
+        #     if done: self.stab = None
+        # else:
+        #     if inputs['pressed'].get('mouse1'):
+        #         mouse_angle = (-pygame.Vector2(self.rect.center) + inputs['mouse pos']).angle_to(pygame.Vector2(0, 1))
+        #         self.stab = Stab(angle=mouse_angle, pos=(0,0), name='stab', action='idle')
+        #         self.update_stab_pos()
+        #         output['stab'] = True
+        self.stab = inputs['pressed'].get('mouse1')
 
         return output
 
@@ -117,7 +128,7 @@ class Enemy(PhysicsEntity):
                 'max_vel': 1,
             },
             'enemy':{
-                'turn_speed': 1,
+                'turn_speed': 2,
             },
         },
     }
@@ -127,7 +138,7 @@ class Enemy(PhysicsEntity):
         super().__init__(*args, **kwargs)
 
         self.view_angle = starting_view
-        self.view_width = 0.1
+        self.view_width = 0.15
         self.desire = 'idle'
         self.mode_timer = Timer(60)
         self.stats = Enemy.STATS[kwargs['name']]['enemy']
@@ -140,14 +151,16 @@ class Enemy(PhysicsEntity):
     def angle_2(self):
         return self.view_angle + 0.5*self.view_width*360
 
-    def update(self, player, *args, **kwargs):
-        dist = player.pos - self.pos
-        if dist == 0:
+    def update(self, player, enemies, *args, **kwargs):
+        output = {}
+
+        self.player_dist = player.pos - self.pos
+        if self.player_dist == 0:
             player_angle = 0
         else:
-            player_angle = pygame.Vector2(1, 0).angle_to(dist)
-            player_angle = dist.angle_to(pygame.Vector2(1, 0))
-            player_angle = pygame.Vector2(1, 0).angle_to(dist)
+            player_angle = pygame.Vector2(1, 0).angle_to(self.player_dist)
+            player_angle = self.player_dist.angle_to(pygame.Vector2(1, 0))
+            player_angle = pygame.Vector2(1, 0).angle_to(self.player_dist)
         if player_angle < 0:
             player_angle = 360 - abs(player_angle)
             
@@ -171,6 +184,14 @@ class Enemy(PhysicsEntity):
         else:
             self.animation.set_action('idle')
             self.vel *= 0.9
+
+        for e in enemies:
+            if e is self:
+                continue
+            d = pygame.Vector2(self.rect.center) - e.rect.center
+            if d.length() < 20:
+                self.vel += d*0.1
+
 
         # self.view_angle += 1
 
@@ -203,13 +224,26 @@ class Enemy(PhysicsEntity):
         # optional: check dist
         self.see_player = self.angle_1 < player_angle < self.angle_2
 
-
+        hit_output = self.process_hits(player)
+        output = output | hit_output
 
         super().update(*args, **kwargs)
+        return output
+
+    def process_hits(self, player):
+        output = {}
+        if player.stab:
+
+            # if self.rect.colliderect(player.stab.rect):
+            if self.player_dist.length() < player.stab_radius:
+                if not self.see_player:
+                    output['dead'] = True
+        return output
 
     def render(self, surf, *args, **kwargs):
         super().render(surf, *args, **kwargs)
         color = (255, 0, 50) if self.see_player else (200, 200, 200)
+        print(f'{self.rect.center=} {self.angle_1=} {self.angle_2=}')
         pygame.gfxdraw.pie(surf, *self.rect.center, 50,
                            int(self.angle_1),
                            int(self.angle_2),
