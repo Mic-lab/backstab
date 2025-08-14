@@ -8,11 +8,6 @@ from .timer import Timer
 from .particle import ParticleGenerator
 
 class Stab(Entity):
-    # cache = {}
-    # angle_skip = 5
-    # for i in range(360/angle_skip):
-    #     angle = i*angle_skip
-    #     cache[angle] = pygame.transform.rotate(Animation.img_db)
 
     def __init__(self, angle, *args, **kwargs):
         self.angle = angle
@@ -31,7 +26,7 @@ class Stab(Entity):
 
 class Player(PhysicsEntity):
 
-    DASH_COOLDOWN = 20
+    DASH_COOLDOWN = 15
     DASH_DURATION = 12
     DASH_SPEED = 7
 
@@ -80,7 +75,6 @@ class Player(PhysicsEntity):
                 self.vel[1] -= self.speed
             elif inputs['held'].get('s'):
                 self.vel[1] += self.speed
-
 
         # print(self.dash_cooldown_timer, self.dash_cooldown_timer.done)
         # print(f'{self.vel=} {type(self.vel)}')

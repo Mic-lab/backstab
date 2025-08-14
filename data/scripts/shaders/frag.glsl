@@ -39,11 +39,7 @@ void main() {
     //     floor(uvs.y * canvasSize.y / scale) * scale / canvasSize.y
     // );
 
-    // vec2 uvsPx = vec2(
-    //     floor(uvs.x * canvasSize.x / scale) * scale / canvasSize.x,
-    //     floor(uvs.y * canvasSize.y / scale) * scale / canvasSize.y
-    // );
-    
+    // TODO: Understand why this works
     vec2 uvsPx = vec2(
         floor(uvs.x * canvasSize.x) / canvasSize.x,
         floor(uvs.y * canvasSize.y) / canvasSize.y
@@ -61,7 +57,7 @@ void main() {
         vec4 color;
         vec2 delta = -losPos + uvsPx;
         delta.y *= canvasSize.y/canvasSize.x;
-        float mixIntensity = 0.4-length(delta)*1.5;
+        float mixIntensity = 0.4-length(delta)*2;
 
         // dummy value
         if (type == -1) {
@@ -69,11 +65,12 @@ void main() {
 
         // see player
         else if (type == 0) {
-            color = vec4(1, 0.2, mixIntensity*2, 0);
+            color = vec4(1, 0.5, 1-mixIntensity*2, 0);
         }
 
         else if (type == 1) {
-            color = vec4(0.2, 1, mixIntensity*2, 0);
+            // color = vec4(0.2, 1, mixIntensity*2, 0);
+            color = vec4(1-mixIntensity, 1, 1, 0);
         }
 
 
@@ -142,5 +139,8 @@ void main() {
         // f_color.rb *= tTimer;
 
     }
+
+    // f_color = mix(f_color, vec4(1), 0.9999);
+    f_color = mix(f_color, vec4(0), pow(centerDist*1.2, 1));
 }
 

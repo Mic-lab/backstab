@@ -1,0 +1,49 @@
+{ "frames": [
+   {
+    "filename": "opened",
+    "frame": { "x": 0, "y": 0, "w": 26, "h": 25 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 20, "y": 18, "w": 26, "h": 25 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 200
+   },
+   {
+    "filename": "closing",
+    "frame": { "x": 0, "y": 25, "w": 26, "h": 25 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 20, "y": 18, "w": 26, "h": 25 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "closed",
+    "frame": { "x": 0, "y": 50, "w": 26, "h": 25 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 20, "y": 18, "w": 26, "h": 25 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   },
+   {
+    "filename": "opening",
+    "frame": { "x": 0, "y": 75, "w": 26, "h": 25 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 20, "y": 18, "w": 26, "h": 25 },
+    "sourceSize": { "w": 64, "h": 64 },
+    "duration": 100
+   }
+ ],
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.x-dev",
+  "image": "eye.png",
+  "format": "RGBA8888",
+  "size": { "w": 26, "h": 100 },
+  "scale": "1",
+  "slices": [
+  ]
+ }
+}
