@@ -64,6 +64,12 @@ class ParticleGenerator:
             'inverse_rate': True,
             'duration': None,
         },
+        'heart_break': {
+            'base_particle': Particle(action='heart_break', vel=(0, 0)),
+            'vel_randomness': 0,
+            'rate': 1,
+            'duration': 1,
+        },
         'color test': {
             'base_particle': Particle(action='group', vel=(0, -2), color=(255, 0, 68)),
             'vel_randomness': 0.5,

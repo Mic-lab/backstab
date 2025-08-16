@@ -1,8 +1,13 @@
 class Timer:
 
-    def __init__(self, duration):
+    def __init__(self, duration, start=True):
         self.duration = duration
-        self.reset()
+
+        if start:
+            self.reset()
+        else:
+            self.frame = self.duration
+            self.done = True
 
     def reset(self):
         self.frame = 0

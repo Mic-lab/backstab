@@ -1,7 +1,16 @@
 { "frames": [
    {
-    "filename": "idle",
+    "filename": "full",
     "frame": { "x": 0, "y": 0, "w": 11, "h": 10 },
+    "rotated": false,
+    "trimmed": true,
+    "spriteSourceSize": { "x": 2, "y": 2, "w": 11, "h": 10 },
+    "sourceSize": { "w": 15, "h": 14 },
+    "duration": 2000
+   },
+   {
+    "filename": "empty",
+    "frame": { "x": 0, "y": 10, "w": 11, "h": 10 },
     "rotated": false,
     "trimmed": true,
     "spriteSourceSize": { "x": 2, "y": 2, "w": 11, "h": 10 },
@@ -14,7 +23,7 @@
   "version": "1.x-dev",
   "image": "heart.png",
   "format": "RGBA8888",
-  "size": { "w": 11, "h": 10 },
+  "size": { "w": 11, "h": 20 },
   "scale": "1",
   "slices": [
   ]

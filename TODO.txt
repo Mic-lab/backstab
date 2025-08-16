@@ -1,5 +1,11 @@
-- end enemy mid stab
-- stab radius uses the center of the enemy
+IDEAS
+    - You must use enemies to transport another enemiy using the collision
+    - Item that make you drop glue on the ground where u walk which slows down enemies that walk on it
+
+TODO
+    - haev way of not looping animation (like on the eye for ex)
+    - end enemy mid stab
+    - stab radius uses the center of the enemy
 
 - comment
 

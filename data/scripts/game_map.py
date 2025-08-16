@@ -55,6 +55,7 @@ class GameMap:
         array_layout = [row.strip() for row in GameMap.MAP_LAYOUT.split('\n') if row.strip()]
         print(array_layout)
         for i, row in enumerate(array_layout):
+
             for j, str_tile in enumerate(row):
                 name = GameMap.TILE_MAP[str_tile]
                 self.tiles.append(Tile(pos=(j*config.TILE_SIZE[0],

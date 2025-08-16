@@ -5,6 +5,7 @@ uniform float transitionTimer;
 uniform int transitionState;
 uniform float shakeTimer = -1.0;
 uniform float caTimer = -1.0;
+uniform float hitTimer = -1.0;
 
 uniform vec4 los[64];
 uniform int losType[64];
@@ -48,8 +49,18 @@ void main() {
     // Line of sights
     for (int i = 0; i <= los.length(); i++) {
         vec2 losPos = vec2(los[i].xy);
-        float angle1 = 2*PI-(los[i][3] / 180 * PI);
-        float angle2 = 2*PI-(los[i][2] / 180 * PI);
+        
+        float angle1;
+        float angle2;
+
+        if (los[i][3] == -1) {
+            angle1 = -1;
+            angle2 = -1;
+        }
+        else {
+            angle1 = 2*PI-(los[i][3] / 180 * PI);
+            angle2 = 2*PI-(los[i][2] / 180 * PI);
+        }
 
 
         int type = losType[i];
@@ -57,7 +68,7 @@ void main() {
         vec4 color;
         vec2 delta = -losPos + uvsPx;
         delta.y *= canvasSize.y/canvasSize.x;
-        float mixIntensity = 0.4-length(delta)*2;
+        float mixIntensity = 0.4-length(delta)*3;
 
         // dummy value
         if (type == -1) {
@@ -79,16 +90,32 @@ void main() {
         // f_color = mix(f_color, vec4(angle / 2 / PI, 0, 0, 0), 0.5);
         // f_color = mix(f_color, vec4(angle2 / 2 / PI, 0, 0, 0), 0.5);
 
-        if (mixIntensity > 0 && length(delta) > 0.02) {
-            if (angle1 > angle2) {
-                if ((angle > angle1) || (angle < angle2)) {
-                    f_color = mix(f_color, color, mixIntensity);
-                }
+        // TODO: Make this less redundant
+        if (mixIntensity > 0 && length(delta) > 0.025) {
+
+            // if (mod(int(uvs.x * 200), 2) == 0 || mod(int(uvs.y * 200 * canvasSize.y/canvasSize.x), 2) == 0) {
+            if (mod(int(uvs.y * 200 * canvasSize.y/canvasSize.x), 2) == 0) {
+                color *= 0.8;
+            }
+
+
+            // Full circle
+            if (angle1 == -1) {
+                f_color = mix(f_color, color, mixIntensity);
+                // f_color = mix(f_color, vec4(1, 1, 1, 0), 0.9);
             }
 
             else {
-                if ((angle > angle1 && angle < angle2)) {
-                    f_color = mix(f_color, color, mixIntensity);
+                if (angle1 > angle2) {
+                    if ((angle > angle1) || (angle < angle2)) {
+                        f_color = mix(f_color, color, mixIntensity);
+                    }
+                }
+
+                else {
+                    if ((angle > angle1 && angle < angle2)) {
+                        f_color = mix(f_color, color, mixIntensity);
+                    }
                 }
             }
         }
@@ -140,7 +167,9 @@ void main() {
 
     }
 
-    // f_color = mix(f_color, vec4(1), 0.9999);
-    f_color = mix(f_color, vec4(0), pow(centerDist*1.2, 1));
+    // f_color = mix(f_color, vec4(0), pow(centerDist*1.2, 1));
+    if (hitTimer != -1) {
+        f_color = mix(f_color, vec4(0, 0, 0, 0), 0.3*pow(1-hitTimer, 2));
+    }
 }
 
