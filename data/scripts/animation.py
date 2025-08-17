@@ -7,8 +7,12 @@ class Animation:
 
     ANIMATIONS_DIR = 'data/imgs/animations'
 
+    STOP_ANIMATIONS = {
+        'eye': ('opened', 'closed'),
+    }
+
     @staticmethod
-    def load_spritesheet(config, spritesheet: pygame.Surface):
+    def load_spritesheet(config, spritesheet: pygame.Surface, animation_name):
         frames_data = {}
 
         offset = None
@@ -27,7 +31,13 @@ class Animation:
                 continue
 
             if frame['filename'] not in frames_data:
-                frames_data[frame['filename']] = []
+                frames_data[frame['filename']] = { 'imgs': []}
+                action = frame['filename']
+                loop = 'repeat'
+                if animation_name in Animation.STOP_ANIMATIONS:
+                    if action in Animation.STOP_ANIMATIONS[animation_name]:
+                        loop = 'stop'
+                frames_data[frame['filename']]['loop'] = loop
                                                       
             frame_rect = pygame.Rect(
                 frame['frame']['x'],
@@ -37,7 +47,7 @@ class Animation:
             )
 
             frame_img = spritesheet.subsurface(frame_rect)
-            frames_data[frame['filename']].append(
+            frames_data[frame['filename']]['imgs'].append(
                 {'img': frame_img,
                  'duration': frame['duration'] // (100/6)}  # convert ms to frames at 60 FPS
             )
@@ -60,7 +70,7 @@ class Animation:
                 default_action = 'idle'
             else:
                 default_action = next(iter(frames_data))
-            default_img = frames_data[default_action][0]['img']
+            default_img = frames_data[default_action]['imgs'][0]['img']
             print(f'[Warning] No slice for {config["meta"]["image"]}; Generating rect with {default_action}')
             rect_data = default_img.get_bounding_rect()
 
@@ -94,7 +104,7 @@ class Animation:
                     cls.add_img(img, animation_name)
                 else:
                     spritesheet = utils.load_img(os.path.join(directory, file_name))
-                    spritesheet_data = cls.load_spritesheet(animation_config, spritesheet)
+                    spritesheet_data = cls.load_spritesheet(animation_config, spritesheet, animation_name)
                     cls.animation_db[animation_name] = spritesheet_data
             else:
                 continue
@@ -142,11 +152,15 @@ class Animation:
 
     @property
     def frames(self):
-        return Animation.animation_db[self.name]['frames'][self.action]
+        return Animation.animation_db[self.name]['frames'][self.action]['imgs']
 
     @property
     def frame(self):
         return self.frames[self.animation_frame]
+
+    @property
+    def loop(self):
+        return Animation.animation_db[self.name]['frames'][self.action]['loop']
 
     def update(self):
         if self.action is None:
@@ -157,7 +171,10 @@ class Animation:
             self.game_frame = 0
             self.animation_frame += 1
             if self.animation_frame >= len(self.frames):
-                self.animation_frame = 0
+                if self.loop == 'repeat':
+                    self.animation_frame = 0
+                elif self.loop == 'stop':
+                    self.animation_frame -= 1
                 return True
 
     def set_action(self, new_action, reset=False):

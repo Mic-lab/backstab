@@ -159,7 +159,7 @@ class Enemy(PhysicsEntity):
                 'max_vel': 0.5,
             },
             'enemy':{
-                None: None
+                'acceleration': 0.2,
             },
         },
     }
@@ -267,12 +267,18 @@ class Enemy(PhysicsEntity):
         #                    int(self.angle_2),
         #                    color)
 
+    # Methods that can be used for update behavior --------------------------- #
+    # NOTE: May require certain keys to be in STATS
+
+    def goto_player(self):
+        self.vel += self.stats['acceleration']*pygame.Vector2(cos(self.player_angle/180*pi), sin(self.player_angle/180*pi))
+
+
 class BasicEnemy(Enemy):
 
     def update_behavior(self):
         self.animation.set_action('run')
-        self.vel += self.stats['acceleration']*pygame.Vector2(cos(self.player_angle/180*pi),
-                                       sin(self.player_angle/180*pi))
+        self.goto_player()
         if abs(self.view_angle - self.player_angle) < self.stats['turn_speed']:
             self.view_angle = self.player_angle
         else:
@@ -298,7 +304,11 @@ class Eye(Enemy):
         if self.open_timer.done:
             if self.animation.action == 'opened':
                 self.animation.set_action('closed')
+                self.view_width = 0
             elif self.animation.action == 'closed':
                 self.animation.set_action('opened')
+                self.view_width = 1
             self.open_timer.reset()
         self.open_timer.update()
+
+        self.goto_player()

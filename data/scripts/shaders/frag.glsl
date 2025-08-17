@@ -96,7 +96,10 @@ void main() {
             // if (mod(int(uvs.x * 200), 2) == 0 || mod(int(uvs.y * 200 * canvasSize.y/canvasSize.x), 2) == 0) {
             if (mod(int(uvs.y * 200 * canvasSize.y/canvasSize.x), 2) == 0) {
                 color *= 0.8;
-            }
+            };
+
+            // color *= 1+noise1(uvs.x);
+
 
 
             // Full circle
@@ -171,5 +174,7 @@ void main() {
     if (hitTimer != -1) {
         f_color = mix(f_color, vec4(0, 0, 0, 0), 0.3*pow(1-hitTimer, 2));
     }
+    // f_color = mix(f_color, vec4(), 0.9999);
+
 }
 
