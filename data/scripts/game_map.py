@@ -51,17 +51,19 @@ class GameMap:
 
     def __init__(self):
         self.tiles = []
+        self.collision_tiles = []
 
         array_layout = [row.strip() for row in GameMap.MAP_LAYOUT.split('\n') if row.strip()]
-        print(array_layout)
         for i, row in enumerate(array_layout):
 
             for j, str_tile in enumerate(row):
                 name = GameMap.TILE_MAP[str_tile]
-                self.tiles.append(Tile(pos=(j*config.TILE_SIZE[0],
+                collision = str_tile in GameMap.COLLISION_TILES
+                tile = Tile(pos=(j*config.TILE_SIZE[0],
                                             i*config.TILE_SIZE[1]), name=name,
-                                       collision=str_tile in GameMap.COLLISION_TILES),
-                                  )
+                                       collision=collision)
+                self.tiles.append(tile)
+                if collision: self.collision_tiles.append(tile.rect)
 
     def render(self, surf):
         for tile in self.tiles:

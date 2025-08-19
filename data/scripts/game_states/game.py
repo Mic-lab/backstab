@@ -54,10 +54,7 @@ class Game(State):
         self.game_map.render(self.handler.canvas)
 
         self.dangers = []
-        collisions = []
-        for tile in self.game_map.tiles:
-            if tile.collision:
-                collisions.append(tile.rect)
+        collisions = self.game_map.collision_tiles  # NOTE: same reference
 
         # for c in collisions:
         #     pygame.draw.rect(self.handler.canvas, (200, 200, 0), c)

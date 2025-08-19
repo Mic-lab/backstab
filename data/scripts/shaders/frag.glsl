@@ -68,7 +68,7 @@ void main() {
         vec4 color;
         vec2 delta = -losPos + uvsPx;
         delta.y *= canvasSize.y/canvasSize.x;
-        float mixIntensity = 0.4-length(delta)*3;
+        float mixIntensity = 0.3-length(delta)*3;
 
         // dummy value
         if (type == -1) {
