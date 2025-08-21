@@ -126,9 +126,9 @@ class ParticleGenerator:
             return True
         if not self.timer.done: self.timer.update()
 
-    def render(self, surf):
+    def render(self, surf, offset=(0, 0)):
         for particle in self.particles:
-            particle.render(surf)
+            particle.render(surf, offset=offset)
 
     @staticmethod
     def update_generators(generators):

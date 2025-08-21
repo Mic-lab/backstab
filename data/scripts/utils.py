@@ -5,6 +5,7 @@ from glob import glob
 
 def load_img(path, colorkey=(0, 0, 0)):
     img = pygame.image.load(path).convert()
+    img.set_colorkey((0,0,0))
     img.set_colorkey(colorkey)
     return img
     # return pygame.transform.scale_by(img, SCALE)

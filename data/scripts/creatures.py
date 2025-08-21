@@ -56,12 +56,13 @@ class Player(PhysicsEntity):
     def render(self, surf, *args, **kwargs):
         # if self.stab: self.stab.render(surf)
         s = pygame.Surface((self.stab_radius*2, self.stab_radius*2), pygame.SRCALPHA)
+        offset = pygame.Vector2(args[0])  # Is this bad practice?
         pygame.draw.circle(s, (200, 200, 255), (self.stab_radius, self.stab_radius), self.stab_radius-12, width=2)  # removing from stab radius just to feel fair for player cause it uses enemy rect (FIXME)
         s.set_alpha(50)
-        surf.blit(s, self.rect.center - pygame.Vector2(self.stab_radius, self.stab_radius))
+        surf.blit(s, self.rect.center+offset - pygame.Vector2(self.stab_radius, self.stab_radius))
         super().render(surf, *args, **kwargs)
 
-    def update(self, inputs, dangers, *args, **kwargs):
+    def update(self, offset, inputs, dangers, *args, **kwargs):
         output = {}
 
         if not self.dash_timer.done:
@@ -70,7 +71,7 @@ class Player(PhysicsEntity):
                 trail_surf.set_alpha(150)
                 trail = {
                     'surf': trail_surf,
-                    'pos': self.pos.copy(),
+                    'pos': self.pos + offset,
                     'change': 20,
                 }
                 output['trail'] = trail

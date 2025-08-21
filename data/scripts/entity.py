@@ -35,9 +35,10 @@ class Entity:
     def update(self):
         return self.animation.update()
 
-    def render(self, surf):
+    def render(self, surf, offset=(0,0)):
+        pos = self.pos + offset
         # pygame.draw.rect(surf, (255, 0, 0), self.rect, width=1)
-        surf.blit(self.img, self.pos)
+        surf.blit(self.img, pos)
 
     def __repr__(self):
         return f'<{self.name}>'

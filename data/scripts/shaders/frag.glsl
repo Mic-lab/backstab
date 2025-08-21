@@ -1,6 +1,7 @@
 #version 330 core
 
 uniform sampler2D canvasTex;
+uniform vec2 gameOffset;
 uniform float transitionTimer;
 uniform int transitionState;
 uniform float shakeTimer = -1.0;
@@ -73,9 +74,9 @@ void main() {
             angle2 = 2*PI-(los[i][2] / 180 * PI);
         }
 
-
         int type = losType[i];
 
+        losPos += gameOffset;
         vec4 color;
         vec2 delta = -losPos + uvsPx;
         delta.y *= canvasSize.y/canvasSize.x;

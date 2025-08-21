@@ -21,6 +21,10 @@ class Tile(Entity):
 
 class GameMap:
 
+    map_size = (16, 9)
+    map_px_size = (map_size[0]*config.TILE_SIZE[0],
+                   map_size[1]*config.TILE_SIZE[1])
+
     MAP_LAYOUT = '''
     6222222222222227
     500r000000000004
@@ -50,6 +54,11 @@ class GameMap:
     COLLISION_TILES = tuple('12345679r')
 
     def __init__(self):
+        self.offset = (0.5*(config.CANVAS_SIZE[0]-GameMap.map_px_size[0]),
+                       0.5*(config.CANVAS_SIZE[1]-GameMap.map_px_size[1]))
+
+        # print(GameMap.map_px_size[1], config.CANVAS_SIZE[1])
+
         self.tiles = []
         self.collision_tiles = []
 
@@ -67,4 +76,4 @@ class GameMap:
 
     def render(self, surf):
         for tile in self.tiles:
-            tile.render(surf)
+            tile.render(surf, offset=self.offset)
