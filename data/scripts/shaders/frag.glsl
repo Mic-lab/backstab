@@ -9,6 +9,7 @@ uniform float hitTimer = -1.0;
 
 uniform vec4 los[64];
 uniform int losType[64];
+uniform vec4 circles[4];
 
 in vec2 uvs;
 out vec4 f_color;
@@ -46,8 +47,18 @@ void main() {
         floor(uvs.y * canvasSize.y) / canvasSize.y
     );
 
+    // Circles
+    for (int i = 0; i < circles.length(); i++) {
+        vec2 center = vec2(circles[i].xy);
+        if (circles[i][3] == -1) {
+        }
+        else {
+            f_color = mix(f_color, vec4(0, 1, 0, 0), 0.01);
+        }
+    }
+
     // Line of sights
-    for (int i = 0; i <= los.length(); i++) {
+    for (int i = 0; i < los.length(); i++) {
         vec2 losPos = vec2(los[i].xy);
         
         float angle1;

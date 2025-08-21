@@ -95,6 +95,8 @@ class Game(State):
                 enemy.angle_1, enemy.angle_2))
             shader_handler.vars['losType'].append(0 if enemy.see_player else 1)
 
+            shader_handler.vars['circles'] = [(0.5, 0.5, 0.5, 1)]
+
             # if enemy.angle_1 == -1:
             #     print(shader_handler.vars['los'][-1])
             #     print(shader_handler.vars['losType'][-1])

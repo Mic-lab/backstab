@@ -13,14 +13,22 @@ def update_tex(tex, surf):
 class ShaderHandler:
 
     ARRAY_HANDLER = {
+
         'los': {
             'size': 64,
             'empty': [-1, -1, -1, -1],
         },
+
         'losType': {
             'size': 64,
             'empty': -1,
         },
+
+        'circles': {
+            'size': 4,
+            'empty': [-1, -1, -1, -1],  # x, y, r, type
+        },
+
     }
 
     def __init__(self):
@@ -74,7 +82,6 @@ class ShaderHandler:
                 for i, item in enumerate(val):
                     l[i] = item
                 # print(f'{l=}')
-                # print(f'{key=} {l=}')
                 self.program[key] = l
             
             else:
