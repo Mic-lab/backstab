@@ -29,7 +29,7 @@ class Stab(Entity):
 
 class Player(PhysicsEntity):
 
-    DASH_COOLDOWN = 1
+    DASH_COOLDOWN = 20
     DASH_DURATION = 10
     DASH_SPEED = 9
 
@@ -218,7 +218,7 @@ class Enemy(PhysicsEntity):
         if self.path:
 
             if self.target:
-                if (self.target - self.rect.center).length() < 10:
+                if (self.target - self.rect.center).length() < 15:
                     self.path.pop(0)
 
             if len(self.path) >= 2:
@@ -309,9 +309,9 @@ class Enemy(PhysicsEntity):
         s = pygame.Surface(surf.get_size())
         s.set_colorkey((0, 0, 0))
         for i, tile in enumerate(self.path):
-            pygame.draw.rect(s, (0, i*20, 200), ((tile.x)*24+offset[0], offset[1]+tile.y*24, 24, 24))
-        s.set_alpha(100)
-        # surf.blit(s, (0,0))
+            pygame.draw.rect(s, (100, 200-i*20, 100), ((tile.x)*24+offset[0], offset[1]+tile.y*24, 24, 24))
+        s.set_alpha(50)
+        surf.blit(s, (0,0))
         surf.set_at((self.target[0]+offset[0], self.target[1]+offset[1]), (0, 255, 255))
         surf.set_at(pygame.Vector2(self.rect.center) + offset, (255, 0, 255))
 

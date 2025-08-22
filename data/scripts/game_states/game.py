@@ -80,6 +80,15 @@ class Game(State):
                 enemy.stab.render(self.game_surf, self.game_map.offset)
         self.dead_enemies = new_dead_enemies
 
+        import random
+        if random.randint(1, 200) == 1:
+            self.enemies.extend([
+                BasicEnemy(pos=(200, 120), name='civilian', action='idle'),
+                # BasicEnemy(pos=(220, 150), name='civilian', action='idle'),
+                # Eye(pos=(250, 100), name='eye', action='opened'),
+            ])
+
+
         new_enemies = []
         for enemy in self.enemies:
             update_data = enemy.update(self.game_map, self.player, self.enemies, collisions)
