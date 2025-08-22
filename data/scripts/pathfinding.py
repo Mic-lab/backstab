@@ -1,4 +1,5 @@
 # https://www.youtube.com/watch?v=-L-WgKMFuhE
+from copy import deepcopy
 from time import perf_counter
 
 class Tile:
@@ -50,7 +51,13 @@ class Tile:
     def __repr__(self):
         return f'({self.x}, {self.y})'
 
-def get_grid(grid_inp):
+def get_grid(grid_inp, start_coord, end_coord):
+    grid_inp[start_coord[1]][start_coord[0]] = 2
+    grid_inp[end_coord[1]][end_coord[0]] = 3
+
+    from pprint import pprint
+    pprint(grid_inp)
+
     grid = []
     for y, row in enumerate(grid_inp):
         grid.append([])
@@ -66,60 +73,74 @@ def get_grid(grid_inp):
             grid[y].append(tile)
     return grid, start, end
 
-def calc_path(grid, start, end, grid_size):
-    t0 = perf_counter()
+class PathFinder:
 
-    open_tiles = {start}
-    close_tiles = set()
+    neighbor_offset = set()
+    for x in range(-1, 2):
+        for y in range(-1, 2):
+            coord = (x, y)
+            if coord == (0, 0):
+                continue
+            neighbor_offset.add(coord)
 
-    while True:
-        # current = min(open_tiles, key=lambda e: e.f)
-        current = next(iter(open_tiles))
-        for tile in open_tiles:
-            if tile.f is None: continue
-            if tile.f == current.f:
-                if tile.g < current.f:
+    # neighbor_offset = {(-1, 0), (1, 0), (0, -1), (0, 1)}
+
+    def __init__(self):
+        pass
+
+    def get_path(self, game_map, start, end):
+        grid, grid_size = deepcopy(game_map.grid), game_map.map_size
+        # start = grid[int(start[1])][int(start[0])]
+        # end = grid[int(end[1])][int(end[0])]
+        # print(f'{grid=}')
+        # print(f'{start=}')
+        grid, start, end = get_grid(grid, start, end)
+        self.calc_path(grid, start, end, grid_size)
+
+        path = []
+        current = end
+        while True:
+            path.append(current.parent)
+            current = current.parent
+            if current is start:
+                path.append(current)
+                return path
+
+    @classmethod
+    def calc_path(cls, grid, start, end, grid_size):
+        t0 = perf_counter()
+
+        open_tiles = {start}
+        close_tiles = set()
+
+        while True:
+            # current = min(open_tiles, key=lambda e: e.f)
+            current = next(iter(open_tiles))
+            for tile in open_tiles:
+                if tile.f is None: continue
+                if tile.f == current.f:
+                    if tile.g < current.f:
+                        current = tile
+                elif tile.f < current.f:
                     current = tile
-            elif tile.f < current.f:
-                current = tile
-        
-        open_tiles.remove(current) # can be optimized with pop
-        close_tiles.add(current)
+            
+            open_tiles.remove(current) # can be optimized with pop
+            close_tiles.add(current)
 
-        if current is end:
-            t1 = perf_counter()
-            time_taken = round(t1 - t0, 4)
-            print(f'close_tiles explored {len(close_tiles)} ({time_taken} s)')
-            return
+            if current is end:
+                t1 = perf_counter()
+                time_taken = round(t1 - t0, 4)
+                print(f'close_tiles explored {len(close_tiles)} ({time_taken} s)')
+                return
 
-        for offset in neighbor_offset:
-            x, y = current.x - offset[0], current.y - offset[1]
+            for offset in cls.neighbor_offset:
+                x, y = current.x - offset[0], current.y - offset[1]
 
-            if x < 0 or y < 0 or x == grid_size[0] or y == grid_size[1]:
-                continue
+                if x < 0 or y < 0 or x == grid_size[0] or y == grid_size[1]:
+                    continue
 
-            neighbor_tile = grid[y][x]
-            if not neighbor_tile or neighbor_tile in close_tiles:
-                continue
-            neighbor_tile.update(current, start, end)
-            open_tiles.add(neighbor_tile)
-
-def get_path(grid, grid_size, start, end):
-    calc_path(grid, start, end, grid_size)
-
-    path = []
-    current = end
-    while True:
-        path.append(current.parent)
-        current = current.parent
-        if current is start:
-            return path
-
-        
-neighbor_offset = set()
-for x in range(-1, 2):
-    for y in range(-1, 2):
-        coord = (x, y)
-        if coord == (0, 0):
-            continue
-        neighbor_offset.add(coord)
+                neighbor_tile = grid[y][x]
+                if not neighbor_tile or neighbor_tile in close_tiles:
+                    continue
+                neighbor_tile.update(current, start, end)
+                open_tiles.add(neighbor_tile)

@@ -1,6 +1,8 @@
 import pygame
 import pygame.gfxdraw
 import random
+from data.scripts import config
+from data.scripts.pathfinding import PathFinder
 from .animation import Animation
 from .entity import PhysicsEntity, Entity
 from math import pi, cos, sin
@@ -27,9 +29,9 @@ class Stab(Entity):
 
 class Player(PhysicsEntity):
 
-    DASH_COOLDOWN = 15
-    DASH_DURATION = 12
-    DASH_SPEED = 7
+    DASH_COOLDOWN = 1
+    DASH_DURATION = 10
+    DASH_SPEED = 9
 
     LOWEST_HIT_ALPHA = 100
 
@@ -175,6 +177,10 @@ class Enemy(PhysicsEntity):
         self.mode_timer = Timer(60)
         self.stats = Enemy.STATS[kwargs['name']]['enemy']
 
+        self.target = None
+        self.update_path_timer = Timer(30, start=False)
+        self.path_finder = None
+
     # NOTE: A bit redundant
     @property
     def angle_1(self):
@@ -194,6 +200,49 @@ class Enemy(PhysicsEntity):
         if angle_2 < 0: angle_2 = 360 - abs(angle_2)
         return angle_2
 
+    def find_path(self, game_map):
+        if self.path_finder:
+            my_tile_pos = int(self.rect.center[0] // config.TILE_SIZE[0]), int(self.rect.center[1] // config.TILE_SIZE[1])
+            player_tile_pos = int(self.player.rect.center[0] // config.TILE_SIZE[0]), int(self.player.rect.center[1] // config.TILE_SIZE[1])
+            print(f'{my_tile_pos=}')
+            print(f'{player_tile_pos=}')
+            if my_tile_pos == player_tile_pos:
+                self.path = []
+            else:
+                self.path = self.path_finder.get_path(game_map, my_tile_pos, player_tile_pos)
+                self.path.reverse()
+        else:
+            self.path = None
+
+    def follow_path(self):
+        if self.path:
+
+            if self.target:
+                if (self.target - self.rect.center).length() < 10:
+                    self.path.pop(0)
+
+            if len(self.path) >= 2:
+                target = self.path[1].x*config.TILE_SIZE[0], self.path[1].y*config.TILE_SIZE[1]
+                target += 0.5*pygame.Vector2(config.TILE_SIZE)
+                vel_change = -pygame.Vector2(self.rect.center) + target
+
+                if vel_change.length() == 0:
+                    vel_change = pygame.Vector2(0, 1)
+                else:
+                    vel_change.scale_to_length(1)
+
+#             print(f'''
+# My center: {self.rect.center}
+# Target's center: {target} ({self.path[0].x, self.path[0].y})
+# {vel_change=}
+#             ''')
+
+                self.target = target
+                self.vel += self.stats['acceleration']*vel_change
+            else:
+                self.target = pygame.Vector2(self.player.rect.center)
+
+
     @abstractmethod
     def update_behavior(self):
         pass
@@ -206,9 +255,10 @@ class Enemy(PhysicsEntity):
             if d.length() < 20:
                 self.vel += d*0.05
 
-    def update(self, player, enemies, *args, **kwargs):
+    def update(self, game_map, player, enemies, *args, **kwargs):
         output = {}
 
+        self.player = player
         self.player_dist = player.rect.center - pygame.Vector2(self.rect.center)
         if self.player_dist == 0:
             player_angle = 0
@@ -220,6 +270,10 @@ class Enemy(PhysicsEntity):
             player_angle = 360 - abs(player_angle)
         self.player_angle = player_angle
 
+        if self.update_path_timer.done:
+            self.update_path_timer = Timer(30)
+            self.find_path(game_map)
+        self.follow_path()
         self.update_behavior()
         self.distance_from_enemies(enemies)
 
@@ -230,6 +284,8 @@ class Enemy(PhysicsEntity):
             self.see_player = self.angle_1 < player_angle or self.angle_2 > player_angle
         else:
             self.see_player = self.angle_1 < player_angle < self.angle_2
+
+        self.update_path_timer.update()
 
         hit_output = self.process_hits(player)
         output = output | hit_output
@@ -248,8 +304,16 @@ class Enemy(PhysicsEntity):
 
         return output
 
-    def render(self, surf, *args, **kwargs):
-        super().render(surf, *args, **kwargs)
+    def render(self, surf, offset, *args, **kwargs):
+        super().render(surf, offset, *args, **kwargs)
+        s = pygame.Surface(surf.get_size())
+        s.set_colorkey((0, 0, 0))
+        for i, tile in enumerate(self.path):
+            pygame.draw.rect(s, (0, i*20, 200), ((tile.x)*24+offset[0], offset[1]+tile.y*24, 24, 24))
+        s.set_alpha(100)
+        # surf.blit(s, (0,0))
+        surf.set_at((self.target[0]+offset[0], self.target[1]+offset[1]), (0, 255, 255))
+        surf.set_at(pygame.Vector2(self.rect.center) + offset, (255, 0, 255))
 
         # bye bye!
         # color = (255, 0, 50) if self.see_player else (200, 200, 200)
@@ -277,9 +341,14 @@ class Enemy(PhysicsEntity):
 
 class BasicEnemy(Enemy):
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.path_finder = PathFinder()
+
     def update_behavior(self):
+        print(f'{self.path=}')
         self.animation.set_action('run')
-        self.goto_player()
+        # self.goto_player()
         if abs(self.view_angle - self.player_angle) < self.stats['turn_speed']:
             self.view_angle = self.player_angle
         else:

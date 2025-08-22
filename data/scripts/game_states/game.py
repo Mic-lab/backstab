@@ -31,8 +31,8 @@ class Game(State):
         self.enemies = []
         self.enemies.extend([
             BasicEnemy(pos=(200, 120), name='civilian', action='idle'),
-            BasicEnemy(pos=(220, 150), name='civilian', action='idle'),
-            Eye(pos=(250, 100), name='eye', action='opened'),
+            # BasicEnemy(pos=(220, 150), name='civilian', action='idle'),
+            # Eye(pos=(250, 100), name='eye', action='opened'),
         ])
 
         self.timers = {
@@ -82,7 +82,7 @@ class Game(State):
 
         new_enemies = []
         for enemy in self.enemies:
-            update_data = enemy.update(self.player, self.enemies, collisions)
+            update_data = enemy.update(self.game_map, self.player, self.enemies, collisions)
             if update_data.get('dead'):
                 self.dead_enemies.append(enemy)
                 stab_w = animation.Animation.animation_db['stab']['rect'].w
@@ -96,7 +96,7 @@ class Game(State):
                 enemy.angle_1, enemy.angle_2))
             shader_handler.vars['losType'].append(0 if enemy.see_player else 1)
 
-            shader_handler.vars['circles'] = [(0.5, 0.5, 0.5, 1)]
+            # shader_handler.vars['circles'] = [(0.5, 0.5, 0.5, 1)]
 
             # if enemy.angle_1 == -1:
             #     print(shader_handler.vars['los'][-1])
@@ -127,7 +127,12 @@ class Game(State):
             self.timers['hit'].reset()
             self.health.change_hp(-1, self.gens)
 
+        shader_handler.vars['circles'] = [(self.player.rect.centerx / config.CANVAS_SIZE[0],
+                                           self.player.rect.centery / config.CANVAS_SIZE[1],
+                                           self.player.stab_radius / config.CANVAS_SIZE[0], 1)]
+
         self.player.render(self.game_surf, self.game_map.offset)
+
 
         self.health.update()
         self.health.render(self.game_surf)

@@ -11,6 +11,10 @@ class Animation:
         'eye': ('opened', 'closed'),
     }
 
+    RECT_OVERWRITES = {
+        'rock': pygame.Rect(3, 3, 24-3, 24-3)
+    }
+
     @staticmethod
     def load_spritesheet(config, spritesheet: pygame.Surface, animation_name):
         frames_data = {}
@@ -111,11 +115,16 @@ class Animation:
 
     @classmethod
     def add_img(cls, img, animation_name):
+        if animation_name in Animation.RECT_OVERWRITES:
+            rect = Animation.RECT_OVERWRITES[animation_name]
+        else:
+            rect = pygame.Rect(0, 0, *img.get_size())
+
         cls.animation_db[animation_name] = {
             None: img,
             'size': img.get_size(),
-            'rect': pygame.Rect(0, 0, *img.get_size()),
-        }  
+            'rect': rect}
+
         # So that Animation can find it easily
         # For ease of access outside of the class
         cls.img_db[animation_name] = img

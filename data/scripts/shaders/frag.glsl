@@ -22,6 +22,7 @@ const float shakeCoef = 0.01;
 
 // TODO: get these from config.py and update scale 
 const vec2 canvasSize = vec2(512, 288);
+const float canvasRatio = canvasSize[1]/canvasSize[0];
 const int scale = 3;
 
 vec2 rotateVec(vec2 vec, float theta) {
@@ -48,13 +49,19 @@ void main() {
         floor(uvs.y * canvasSize.y) / canvasSize.y
     );
 
+    vec2 offsetPxUvs = vec2(uvsPx.x, uvsPx.y) - gameOffset;
+
     // Circles
     for (int i = 0; i < circles.length(); i++) {
         vec2 center = vec2(circles[i].xy);
         if (circles[i][3] == -1) {
         }
         else {
-            f_color = mix(f_color, vec4(0, 1, 0, 0), 0.01);
+
+            float d = distance(vec2(offsetPxUvs.x, offsetPxUvs.y), center);
+            if (d < circles[i][2]) {
+                f_color = mix(f_color, vec4(1, 1, 1, 0), d);
+            }
         }
     }
 

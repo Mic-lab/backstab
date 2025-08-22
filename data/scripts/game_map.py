@@ -30,9 +30,21 @@ class GameMap:
     500r000000000004
     500r000000000r04
     5000000000000004
-    5000000000000004
-    5000000000000004
+    500rrrr000000004
+    500r000000000004
     500r000000000r04
+    5000000000000004
+    8333333333333339
+    '''
+
+    MAP_LAYOUT = '''
+    6222222222222227
+    5000000000000004
+    5000000000000004
+    5000000000000004
+    5000000000000004
+    5000000000000004
+    5000000000000004
     5000000000000004
     8333333333333339
     '''
@@ -62,8 +74,12 @@ class GameMap:
         self.tiles = []
         self.collision_tiles = []
 
+        self.grid = []
+
         array_layout = [row.strip() for row in GameMap.MAP_LAYOUT.split('\n') if row.strip()]
         for i, row in enumerate(array_layout):
+
+            self.grid.append([])
 
             for j, str_tile in enumerate(row):
                 name = GameMap.TILE_MAP[str_tile]
@@ -73,6 +89,10 @@ class GameMap:
                                        collision=collision)
                 self.tiles.append(tile)
                 if collision: self.collision_tiles.append(tile.rect)
+
+                grid_id = 1 if collision else 0
+                self.grid[i].append(grid_id)
+
 
     def render(self, surf):
         for tile in self.tiles:

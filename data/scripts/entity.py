@@ -37,8 +37,14 @@ class Entity:
 
     def render(self, surf, offset=(0,0)):
         pos = self.pos + offset
-        # pygame.draw.rect(surf, (255, 0, 0), self.rect, width=1)
+
+
         surf.blit(self.img, pos)
+
+        # rect = self.rect.copy()
+        # rect.x += offset[0]
+        # rect.y += offset[1]
+        # pygame.draw.rect(surf, (255, 0, 0), rect, width=1)
 
     def __repr__(self):
         return f'<{self.name}>'

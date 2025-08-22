@@ -1,3 +1,6 @@
+JUICE
+    - maximum feedback for every input
+
 IDEAS
     - You must use enemies to transport another enemiy using the collision
     - Item that make you drop glue on the ground where u walk which slows down enemies that walk on it
