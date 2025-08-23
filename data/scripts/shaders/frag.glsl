@@ -191,7 +191,7 @@ void main() {
 
     // f_color = mix(f_color, vec4(0), pow(centerDist*1.2, 1));
     if (hitTimer != -1) {
-        f_color = mix(f_color, vec4(0, 0, 0, 0), 0.3*pow(1-hitTimer, 2));
+        f_color = mix(f_color, vec4(0, 0, 0, 0), 0.5*pow(1-hitTimer, 2));
     }
     // f_color = mix(f_color, vec4(), 0.9999);
 

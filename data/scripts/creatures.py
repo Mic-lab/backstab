@@ -178,7 +178,7 @@ class Enemy(PhysicsEntity):
         self.stats = Enemy.STATS[kwargs['name']]['enemy']
 
         self.target = None
-        self.update_path_timer = Timer(30, start=False)
+        self.update_path_timer = Timer(20, start=False)
         self.path_finder = None
 
     # NOTE: A bit redundant
@@ -271,7 +271,7 @@ class Enemy(PhysicsEntity):
         self.player_angle = player_angle
 
         if self.update_path_timer.done:
-            self.update_path_timer = Timer(30)
+            self.update_path_timer.reset()
             self.find_path(game_map)
         self.follow_path()
         self.update_behavior()
@@ -306,14 +306,16 @@ class Enemy(PhysicsEntity):
 
     def render(self, surf, offset, *args, **kwargs):
         super().render(surf, offset, *args, **kwargs)
-        s = pygame.Surface(surf.get_size())
-        s.set_colorkey((0, 0, 0))
-        for i, tile in enumerate(self.path):
-            pygame.draw.rect(s, (100, 200-i*20, 100), ((tile.x)*24+offset[0], offset[1]+tile.y*24, 24, 24))
-        s.set_alpha(50)
-        surf.blit(s, (0,0))
-        surf.set_at((self.target[0]+offset[0], self.target[1]+offset[1]), (0, 255, 255))
-        surf.set_at(pygame.Vector2(self.rect.center) + offset, (255, 0, 255))
+
+        # Path finding displya
+        # s = pygame.Surface(surf.get_size())
+        # s.set_colorkey((0, 0, 0))
+        # for i, tile in enumerate(self.path):
+        #     pygame.draw.rect(s, (100, 200-i*10, 150), ((tile.x)*24+offset[0], offset[1]+tile.y*24, 24, 24))
+        # s.set_alpha(50)
+        # surf.blit(s, (0,0))
+        # surf.set_at((self.target[0]+offset[0], self.target[1]+offset[1]), (0, 255, 255))
+        # surf.set_at(pygame.Vector2(self.rect.center) + offset, (255, 0, 255))
 
         # bye bye!
         # color = (255, 0, 50) if self.see_player else (200, 200, 200)

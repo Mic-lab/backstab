@@ -50,7 +50,7 @@ class Game(State):
         # self.game_surf.fill((40, 30, 50))
         # self.game_surf.fill((50, 50, 60))
         # self.game_surf.fill(config.COLORS['ground'])
-        self.game_surf.fill((0, 0, 0))
+        self.game_surf.fill((20, 14, 20))
 
         self.game_map.render(self.game_surf)
 
@@ -165,7 +165,7 @@ class Game(State):
                 f'vel = {self.player.vel}',
                 # pprint.pformat(Particle.cache)
                 ]
-        self.handler.canvas.fill((50, 0, 0))
+        self.handler.canvas.fill((20, 14, 20))
         self.handler.canvas.blit(self.game_surf)
         shader_handler.vars['gameOffset'] = self.game_map.offset[0] / config.CANVAS_SIZE[0], self.game_map.offset[1] / config.CANVAS_SIZE[1]
         self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (400, 0))
