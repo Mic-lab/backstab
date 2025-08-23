@@ -308,14 +308,16 @@ class Enemy(PhysicsEntity):
         super().render(surf, offset, *args, **kwargs)
 
         # Path finding displya
-        # s = pygame.Surface(surf.get_size())
-        # s.set_colorkey((0, 0, 0))
-        # for i, tile in enumerate(self.path):
-        #     pygame.draw.rect(s, (100, 200-i*10, 150), ((tile.x)*24+offset[0], offset[1]+tile.y*24, 24, 24))
-        # s.set_alpha(50)
-        # surf.blit(s, (0,0))
-        # surf.set_at((self.target[0]+offset[0], self.target[1]+offset[1]), (0, 255, 255))
-        # surf.set_at(pygame.Vector2(self.rect.center) + offset, (255, 0, 255))
+
+        if self.path:
+            s = pygame.Surface(surf.get_size())
+            s.set_colorkey((0, 0, 0))
+            for i, tile in enumerate(self.path):
+                pygame.draw.rect(s, (200, 200-i*10, 200), ((tile.x)*24+offset[0], offset[1]+tile.y*24, 24, 24))
+            s.set_alpha(20)
+            surf.blit(s, (0,0))
+            surf.set_at((self.target[0]+offset[0], self.target[1]+offset[1]), (0, 255, 255))
+            surf.set_at(pygame.Vector2(self.rect.center) + offset, (255, 0, 255))
 
         # bye bye!
         # color = (255, 0, 50) if self.see_player else (200, 200, 200)
@@ -371,6 +373,7 @@ class Eye(Enemy):
         super().__init__(view_width=1, *args, **kwargs)
         self.open_timer = Timer(100)
         print(f'{self.angle_1=} {self.angle_2=} {self.view_angle=}')
+        self.path_finder = PathFinder()
 
     def update_behavior(self):
         if self.open_timer.done:
@@ -382,5 +385,3 @@ class Eye(Enemy):
                 self.view_width = 1
             self.open_timer.reset()
         self.open_timer.update()
-
-        self.goto_player()

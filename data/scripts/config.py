@@ -8,5 +8,5 @@ TILE_SIZE = (24, 24)
 fps = 60
 
 COLORS = {
-    'ground': (93, 69, 80),
+    'ground': (16, 14, 18),
 }

@@ -31,8 +31,8 @@ class Game(State):
         self.enemies = []
         self.enemies.extend([
             BasicEnemy(pos=(200, 120), name='civilian', action='idle'),
-            # BasicEnemy(pos=(220, 150), name='civilian', action='idle'),
-            # Eye(pos=(250, 100), name='eye', action='opened'),
+            BasicEnemy(pos=(220, 150), name='civilian', action='idle'),
+            Eye(pos=(250, 100), name='eye', action='opened'),
         ])
 
         self.timers = {
@@ -50,7 +50,7 @@ class Game(State):
         # self.game_surf.fill((40, 30, 50))
         # self.game_surf.fill((50, 50, 60))
         # self.game_surf.fill(config.COLORS['ground'])
-        self.game_surf.fill((20, 14, 20))
+        self.game_surf.fill(config.COLORS['ground'])
 
         self.game_map.render(self.game_surf)
 
@@ -80,13 +80,13 @@ class Game(State):
                 enemy.stab.render(self.game_surf, self.game_map.offset)
         self.dead_enemies = new_dead_enemies
 
-        import random
-        if random.randint(1, 200) == 1:
-            self.enemies.extend([
-                BasicEnemy(pos=(200, 120), name='civilian', action='idle'),
-                # BasicEnemy(pos=(220, 150), name='civilian', action='idle'),
-                # Eye(pos=(250, 100), name='eye', action='opened'),
-            ])
+        # import random
+        # if random.randint(1, 200) == 1:
+        #     self.enemies.extend([
+        #         BasicEnemy(pos=(200, 120), name='civilian', action='idle'),
+        #         # BasicEnemy(pos=(220, 150), name='civilian', action='idle'),
+        #         # Eye(pos=(250, 100), name='eye', action='opened'),
+        #     ])
 
 
         new_enemies = []
@@ -95,7 +95,7 @@ class Game(State):
             if update_data.get('dead'):
                 self.dead_enemies.append(enemy)
                 stab_w = animation.Animation.animation_db['stab']['rect'].w
-                enemy.stab = Entity(enemy.rect.center- pygame.Vector2(stab_w, 0), 'stab', 'idle')
+                enemy.stab = Entity(enemy.rect.center- pygame.Vector2(stab_w, 6), 'stab', 'idle')
                 continue
 
             enemy.render(self.game_surf, self.game_map.offset)
@@ -165,7 +165,7 @@ class Game(State):
                 f'vel = {self.player.vel}',
                 # pprint.pformat(Particle.cache)
                 ]
-        self.handler.canvas.fill((20, 14, 20))
+        self.handler.canvas.fill((16, 14, 18))
         self.handler.canvas.blit(self.game_surf)
         shader_handler.vars['gameOffset'] = self.game_map.offset[0] / config.CANVAS_SIZE[0], self.game_map.offset[1] / config.CANVAS_SIZE[1]
         self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (400, 0))

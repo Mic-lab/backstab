@@ -76,7 +76,7 @@
   "app": "http://www.aseprite.org/",
   "version": "1.x-dev",
   "image": "stab.png",
-  "format": "RGBA8888",
+  "format": "I8",
   "size": { "w": 416, "h": 13 },
   "scale": "1",
   "slices": [
