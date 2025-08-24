@@ -58,9 +58,27 @@ void main() {
         }
         else {
 
-            float d = distance(vec2(offsetPxUvs.x, offsetPxUvs.y), center);
-            if (d < circles[i][2]) {
-                f_color = mix(f_color, vec4(1, 1, 1, 0), d);
+            float d = distance(vec2(offsetPxUvs.x, offsetPxUvs.y*canvasRatio), vec2(center.x, center.y*canvasRatio));
+            if (d < circles[i][2] && d > 0.07) {
+                // float intensity = (d - 0.07) / circles[i][2];
+                // if (x > 1) {
+                //     x = 1;
+                // }
+
+                float shine = 0.6+0.4*(pow(abs(sin(uvsPx.y*20+uvsPx.x*10)*cos(uvsPx.y*15)), 5));
+
+                // if (f_color.x+f_color.y < 0.3) {
+                //     f_color = vec4(0.5,0.5, 0.5, 0);
+                // }
+                // else {
+                f_color = mix(f_color, vec4(pow(1.5*shine, 1.5), 1.3*shine, 2*shine, 0), 0.5*shine);
+                // }
+
+                if (shine > 0.75 && shine < 0.8) {
+                    // f_color = mix(f_color, vec4(0.5, 1, 1, 0), shine);
+                    f_color = mix(f_color, vec4(0.8, 0.8, 1, 0), shine);
+                }
+                
             }
         }
     }

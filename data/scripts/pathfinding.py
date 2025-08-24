@@ -55,8 +55,8 @@ def get_grid(grid_inp, start_coord, end_coord):
     grid_inp[start_coord[1]][start_coord[0]] = 2
     grid_inp[end_coord[1]][end_coord[0]] = 3
 
-    from pprint import pprint
-    pprint(grid_inp)
+    # from pprint import pprint
+    # pprint(grid_inp)
 
     grid = []
     for y, row in enumerate(grid_inp):
@@ -130,7 +130,8 @@ class PathFinder:
             if current is end:
                 t1 = perf_counter()
                 time_taken = round(t1 - t0, 4)
-                print(f'close_tiles explored {len(close_tiles)} ({time_taken} s)')
+                if time_taken >= 0.0002:
+                    print(f'close_tiles explored {len(close_tiles)} ({time_taken} s)')
                 return
 
             for offset in cls.neighbor_offset:

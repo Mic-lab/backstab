@@ -59,7 +59,7 @@ class Player(PhysicsEntity):
         # if self.stab: self.stab.render(surf)
         s = pygame.Surface((self.stab_radius*2, self.stab_radius*2), pygame.SRCALPHA)
         offset = pygame.Vector2(args[0])  # Is this bad practice?
-        pygame.draw.circle(s, (200, 200, 255), (self.stab_radius, self.stab_radius), self.stab_radius-12, width=2)  # removing from stab radius just to feel fair for player cause it uses enemy rect (FIXME)
+        # pygame.draw.circle(s, (200, 200, 255), (self.stab_radius, self.stab_radius), self.stab_radius-12, width=2)  # removing from stab radius just to feel fair for player cause it uses enemy rect (FIXME)
         s.set_alpha(50)
         surf.blit(s, self.rect.center+offset - pygame.Vector2(self.stab_radius, self.stab_radius))
         super().render(surf, *args, **kwargs)
@@ -204,8 +204,6 @@ class Enemy(PhysicsEntity):
         if self.path_finder:
             my_tile_pos = int(self.rect.center[0] // config.TILE_SIZE[0]), int(self.rect.center[1] // config.TILE_SIZE[1])
             player_tile_pos = int(self.player.rect.center[0] // config.TILE_SIZE[0]), int(self.player.rect.center[1] // config.TILE_SIZE[1])
-            print(f'{my_tile_pos=}')
-            print(f'{player_tile_pos=}')
             if my_tile_pos == player_tile_pos:
                 self.path = []
             else:
@@ -350,7 +348,6 @@ class BasicEnemy(Enemy):
         self.path_finder = PathFinder()
 
     def update_behavior(self):
-        print(f'{self.path=}')
         self.animation.set_action('run')
         # self.goto_player()
         if abs(self.view_angle - self.player_angle) < self.stats['turn_speed']:
@@ -372,7 +369,6 @@ class Eye(Enemy):
     def __init__(self, *args, **kwargs):
         super().__init__(view_width=1, *args, **kwargs)
         self.open_timer = Timer(100)
-        print(f'{self.angle_1=} {self.angle_2=} {self.view_angle=}')
         self.path_finder = PathFinder()
 
     def update_behavior(self):
