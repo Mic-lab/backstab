@@ -1,4 +1,5 @@
 import pygame
+from data.scripts.screen import screen  # To initialize display
 from math import atan, pi
 from pygame import Vector2
 from .animation import Animation
@@ -46,8 +47,8 @@ class Entity:
         # rect.y += offset[1]
         # pygame.draw.rect(surf, (255, 0, 0), rect, width=1)
 
-    def __repr__(self):
-        return f'<{self.name}>'
+    # def __repr__(self):
+    #     return f'<{self.name}>'
 
 class PhysicsEntity(Entity):
 

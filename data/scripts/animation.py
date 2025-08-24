@@ -12,7 +12,7 @@ class Animation:
     }
 
     RECT_OVERWRITES = {
-        'rock': pygame.Rect(3, 3, 24-3, 24-3)
+        'rock': pygame.Rect(1, 0, 24-3, 24-3 - 1)
     }
 
     @staticmethod
@@ -114,7 +114,10 @@ class Animation:
                 continue
 
     @classmethod
-    def add_img(cls, img, animation_name):
+    def add_img(cls, img, animation_name, save=False):
+        if save:
+            pygame.image.save(img, f'{Animation.ANIMATIONS_DIR}/{animation_name}.png')
+
         if animation_name in Animation.RECT_OVERWRITES:
             rect = Animation.RECT_OVERWRITES[animation_name]
         else:

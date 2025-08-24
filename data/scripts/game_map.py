@@ -4,20 +4,39 @@ from .animation import Animation
 import pygame
 
 top_wall = Animation.img_db['top_wall']
-Animation.add_img(pygame.transform.flip(top_wall, False, True), 'bottom_wall')
-Animation.add_img(pygame.transform.rotate(top_wall, -90), 'right_wall')
-Animation.add_img(pygame.transform.rotate(top_wall, 90), 'left_wall')
+Animation.add_img(pygame.transform.flip(top_wall, False, True), 'bottom_wall', save=True)
+Animation.add_img(pygame.transform.rotate(top_wall, -90), 'right_wall', save=True)
+Animation.add_img(pygame.transform.rotate(top_wall, 90), 'left_wall', save=True)
 
 tl_wall = Animation.img_db['tl_wall']
-Animation.add_img(pygame.transform.rotate(tl_wall, -90), 'tr_wall')
-Animation.add_img(pygame.transform.rotate(tl_wall, -180), 'br_wall')
-Animation.add_img(pygame.transform.rotate(tl_wall, -270), 'bl_wall')
+Animation.add_img(pygame.transform.rotate(tl_wall, -90), 'tr_wall', save=True)
+Animation.add_img(pygame.transform.rotate(tl_wall, -180), 'br_wall', save=True)
+Animation.add_img(pygame.transform.rotate(tl_wall, -270), 'bl_wall', save=True)
 
 
 class Tile(Entity):
     def __init__(self, collision, *args, **kwargs):
+        init_args = (args, kwargs)
         self.collision = collision
         super().__init__(*args, **kwargs)
+
+    def get_serialized(self):
+        # d = self.__dict__
+        # d['real_pos'] = tuple(d['real_pos'])
+        # d = 
+        return {
+            'name': self.name,
+                'pos': tuple(self.pos),
+        }
+
+    @classmethod
+    def get_deserialized(cls, **args):
+        # d = self.__dict__
+        # d['real_pos'] = tuple(d['real_pos'])
+        # d = 
+        return cls(collision=True, **args)
+
+
 
 class GameMap:
 
