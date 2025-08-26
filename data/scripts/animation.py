@@ -12,7 +12,7 @@ class Animation:
     }
 
     RECT_OVERWRITES = {
-        'rock': pygame.Rect(1, 0, 24-3, 24-3 - 1)
+        'rock': pygame.Rect(2, 2, 24-4, 24 - 2)
     }
 
     @staticmethod

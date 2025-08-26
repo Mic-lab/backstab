@@ -1,12 +1,31 @@
 JUICE
     - maximum feedback for every input
+    - enemy flash
+    - shader bg
 
 IDEAS
     - You must use enemies to transport another enemiy using the collision
     - Item that make you drop glue on the ground where u walk which slows down enemies that walk on it
+    - Increase attack range
+    - After dash, increase range
+    - Decoy after dash
+    - Throw banana or something taht enemys follow (decoy)
+    - Rainbow items
+        - Invincible when dashing
+        - Double the coins
+    - Pacing:
+        - Puzzle room with chest
+        - Shop
+        - Donation well
+        - minecraft vid with 10 pumpkins have to be mined by player. could do smoething similar
 
 TODO
+    - animations and turn enemies when facing player
     - better system for setting rect of static obj
+    - better saving system
+        - make the dictionnaries more expandalbe by storing long key combinations in variables
+        - make the tile automatically know if it's collidable or not by using db
+
     - haev way of not looping animation (like on the eye for ex)
     - end enemy mid stab
     - stab radius uses the center of the enemy

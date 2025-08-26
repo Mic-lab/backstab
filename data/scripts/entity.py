@@ -42,9 +42,9 @@ class Entity:
 
         surf.blit(self.img, pos)
 
-        # rect = self.rect.copy()
-        # rect.x += offset[0]
-        # rect.y += offset[1]
+        rect = self.rect.copy()
+        rect.x += offset[0]
+        rect.y += offset[1]
         # pygame.draw.rect(surf, (255, 0, 0), rect, width=1)
 
     # def __repr__(self):

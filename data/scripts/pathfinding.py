@@ -97,7 +97,7 @@ class PathFinder:
         grid, start, end = get_grid(grid, start, end)
         self.calc_path(grid, start, end, grid_size)
 
-        path = []
+        path = [end]
         current = end
         while True:
             path.append(current.parent)

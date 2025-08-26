@@ -239,6 +239,8 @@ class Enemy(PhysicsEntity):
                 self.vel += self.stats['acceleration']*vel_change
             else:
                 self.target = pygame.Vector2(self.player.rect.center)
+        else:
+            self.goto_player()
 
 
     @abstractmethod
@@ -311,7 +313,10 @@ class Enemy(PhysicsEntity):
             s = pygame.Surface(surf.get_size())
             s.set_colorkey((0, 0, 0))
             for i, tile in enumerate(self.path):
-                pygame.draw.rect(s, (200, 200-i*10, 200), ((tile.x)*24+offset[0], offset[1]+tile.y*24, 24, 24))
+                if i == len(self.path) - 1:
+                    pygame.draw.rect(s, (0, 255, 0), ((tile.x)*24+offset[0], offset[1]+tile.y*24, 24, 24))
+                else:
+                    pygame.draw.rect(s, (200, 200-i*10, 200), ((tile.x)*24+offset[0], offset[1]+tile.y*24, 24, 24))
             s.set_alpha(20)
             surf.blit(s, (0,0))
             surf.set_at((self.target[0]+offset[0], self.target[1]+offset[1]), (0, 255, 255))

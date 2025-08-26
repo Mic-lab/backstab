@@ -71,7 +71,7 @@ void main() {
                 //     f_color = vec4(0.5,0.5, 0.5, 0);
                 // }
                 // else {
-                f_color = mix(f_color, vec4(pow(1.5*shine, 1.5), 1.3*shine, 2*shine, 0), 0.5*shine);
+                f_color = mix(f_color, vec4(pow(1.5*shine, 1.5), 1.3*shine, 2.2*shine, 0), 0.5*shine);
                 // }
 
                 if (shine > 0.75 && shine < 0.8) {
@@ -107,6 +107,8 @@ void main() {
         delta.y *= canvasSize.y/canvasSize.x;
         float mixIntensity = 0.3-length(delta)*3;
 
+        mixIntensity = round(mixIntensity*30)/30;
+
         // dummy value
         if (type == -1) {
         }
@@ -131,9 +133,10 @@ void main() {
         if (mixIntensity > 0 && length(delta) > 0.025) {
 
             // if (mod(int(uvs.x * 200), 2) == 0 || mod(int(uvs.y * 200 * canvasSize.y/canvasSize.x), 2) == 0) {
-            if (mod(int(uvs.y * 200 * canvasSize.y/canvasSize.x), 2) == 0) {
-                color *= 0.8;
-            };
+            // if (mod(int(uvs.y * 200 * canvasSize.y/canvasSize.x), 2) == 0) {
+            //     color *= 0.8;
+            // };
+
 
             // color *= 1+noise1(uvs.x);
 
