@@ -73,8 +73,8 @@ class Player(PhysicsEntity):
                 trail_surf.set_alpha(150)
                 trail = {
                     'surf': trail_surf,
-                    'pos': self.pos + offset,
-                    'change': 20,
+                    'pos': self.pos,
+                    'change': 15,
                 }
                 output['trail'] = trail
         else:

@@ -50,8 +50,9 @@ class Game(State):
         # self.game_surf.fill((40, 30, 50))
         # self.game_surf.fill((50, 50, 60))
         # self.game_surf.fill(config.COLORS['ground'])
-        self.game_surf.fill(config.COLORS['ground'])
 
+        self.game_map.update_offset(self.player)
+        self.game_surf.fill(config.COLORS['ground'])
         self.game_map.render(self.game_surf)
 
         self.dangers = []
@@ -63,7 +64,7 @@ class Game(State):
         new_trails = []
         for trail in self.trails:
             img = trail['surf']
-            self.game_surf.blit(img, trail['pos'])
+            self.game_surf.blit(img, trail['pos'] + self.game_map.offset)
             new_alpha = img.get_alpha() - trail['change']
             if new_alpha > 0:
                 img.set_alpha(new_alpha)
@@ -167,6 +168,7 @@ class Game(State):
                 ]
         self.handler.canvas.fill((16, 14, 18))
         self.handler.canvas.blit(self.game_surf)
+        # self.game_map.offset = -self.player.pos + (250, 100)
         shader_handler.vars['gameOffset'] = self.game_map.offset[0] / config.CANVAS_SIZE[0], self.game_map.offset[1] / config.CANVAS_SIZE[1]
         self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (400, 0))
 
