@@ -36,7 +36,7 @@ class Tile:
 
     def calc_h(self, end):
         end_dist = (abs(self.x - end.x), abs(self.y - end.y))
-        if self.x > self.y:
+        if end_dist[0] > end_dist[1]:
             big = end_dist[0]
             small = end_dist[1]
         else:

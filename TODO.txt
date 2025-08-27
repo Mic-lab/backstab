@@ -20,6 +20,7 @@ IDEAS
         - minecraft vid with 10 pumpkins have to be mined by player. could do smoething similar
 
 TODO
+    - Fix pathfinding (not doing diagonals on walls)
     - animations and turn enemies when facing player
     - better system for setting rect of static obj
     - better saving system

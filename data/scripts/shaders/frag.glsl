@@ -53,10 +53,11 @@ void main() {
 
     // Circles
     for (int i = 0; i < circles.length(); i++) {
-        vec2 center = vec2(circles[i].xy);
         if (circles[i][3] == -1) {
+            break;
         }
         else {
+            vec2 center = vec2(circles[i].xy);
 
             float d = distance(vec2(offsetPxUvs.x, offsetPxUvs.y*canvasRatio), vec2(center.x, center.y*canvasRatio));
             if (d < circles[i][2] && d > 0.07) {
@@ -66,6 +67,7 @@ void main() {
                 // }
 
                 float shine = 0.6+0.4*(pow(abs(sin(uvsPx.y*20+uvsPx.x*10)*cos(uvsPx.y*15)), 5));
+                // float shine = 0.8+0.4*(pow(abs(sin(uvsPx.y*20+uvsPx.x*10)*cos(uvsPx.y*15)), 5));
 
                 // if (f_color.x+f_color.y < 0.3) {
                 //     f_color = vec4(0.5,0.5, 0.5, 0);
@@ -85,6 +87,13 @@ void main() {
 
     // Line of sights
     for (int i = 0; i < los.length(); i++) {
+        int type = losType[i];
+
+        // dummy value
+        if (type == -1) {
+            break;
+        }
+
         vec2 losPos = vec2(los[i].xy);
         
         float angle1;
@@ -99,7 +108,6 @@ void main() {
             angle2 = 2*PI-(los[i][2] / 180 * PI);
         }
 
-        int type = losType[i];
 
         losPos += gameOffset;
         vec4 color;
@@ -107,14 +115,11 @@ void main() {
         delta.y *= canvasSize.y/canvasSize.x;
         float mixIntensity = 0.3-length(delta)*3;
 
-        mixIntensity = round(mixIntensity*30)/30;
-
-        // dummy value
-        if (type == -1) {
-        }
+        // mixIntensity = round(mixIntensity*30)/30;
+        mixIntensity = mixIntensity;
 
         // see player
-        else if (type == 0) {
+        if (type == 0) {
             color = vec4(1, 0.5, 1-mixIntensity*2, 0);
         }
 
@@ -133,9 +138,9 @@ void main() {
         if (mixIntensity > 0 && length(delta) > 0.025) {
 
             // if (mod(int(uvs.x * 200), 2) == 0 || mod(int(uvs.y * 200 * canvasSize.y/canvasSize.x), 2) == 0) {
-            // if (mod(int(uvs.y * 200 * canvasSize.y/canvasSize.x), 2) == 0) {
-            //     color *= 0.8;
-            // };
+            if (mod(int(uvs.y * 200 * canvasSize.y/canvasSize.x), 2) == 0) {
+                color *= 0.8;
+            };
 
 
             // color *= 1+noise1(uvs.x);
