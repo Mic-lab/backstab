@@ -17,6 +17,11 @@ class Button:
                        'fill': [151, 134, 125], 
                        'text': [240, 240, 240] }
         },
+        'editor': {
+            'colors': {'border': [20, 20, 20], 
+                       'fill': [151, 134, 125], 
+                       'text': [240, 240, 240] }
+        },
     }
     
     def __init__(self, rect: pygame.Rect, text, preset):

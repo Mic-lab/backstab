@@ -122,7 +122,7 @@ class GameMap:
     def update_offset(self, player):
         target = 0.5*pygame.Vector2(config.CANVAS_SIZE) - player.pos
         # self.offset = target
-        self.real_offset += (target-self.real_offset) * 0.1
+        self.real_offset += (target-self.real_offset) * 0.05
         for i in range(2):
 
             for direction, edge in enumerate(self.edges[i]):
