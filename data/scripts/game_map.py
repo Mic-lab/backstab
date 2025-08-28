@@ -84,6 +84,8 @@ class GameMap:
 
     COLLISION_TILES = tuple('12345679r')
 
+    EDGE_PAN = 12
+
     def __init__(self):
         self.center = [0.5*(config.CANVAS_SIZE[0]-GameMap.map_px_size[0]),
                         0.5*(config.CANVAS_SIZE[1]-GameMap.map_px_size[1])]
@@ -91,8 +93,8 @@ class GameMap:
         self.real_offset = self.center.copy()
 
         self.edges = (
-            (0, 2*self.center[0]),
-            (0, 2*self.center[1]),
+            (GameMap.EDGE_PAN, 2*self.center[0] - GameMap.EDGE_PAN),
+            (GameMap.EDGE_PAN, 2*self.center[1] - GameMap.EDGE_PAN),
         )
 
         self.tiles = []
@@ -135,7 +137,7 @@ class GameMap:
                         adjusting = True
 
                 if adjusting:
-                    self.real_offset[i] += (-self.real_offset[i] + edge) * 0.3
+                    self.real_offset[i] += (-self.real_offset[i] + edge) * 1
                     # self.real_offset[i] = 0.1*(self.real_offset[i] - edge)**2
                     # from random import uniform
                     # print(f'too big {uniform(0, 1)}')
