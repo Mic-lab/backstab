@@ -5,16 +5,21 @@ from . import utils
 from .animation import Animation
 import pygame
 
+# TODO: Make less redundant
 top_wall = Animation.img_db['top_wall']
 Animation.add_img(pygame.transform.flip(top_wall, False, True), 'bottom_wall', save=True)
 Animation.add_img(pygame.transform.rotate(top_wall, -90), 'right_wall', save=True)
 Animation.add_img(pygame.transform.rotate(top_wall, 90), 'left_wall', save=True)
 
+top_door = Animation.img_db['top_door']
+Animation.add_img(pygame.transform.flip(top_door, False, True), 'bottom_door', save=True)
+Animation.add_img(pygame.transform.rotate(top_door, -90), 'right_door', save=True)
+Animation.add_img(pygame.transform.rotate(top_door, 90), 'left_door', save=True)
+
 tl_wall = Animation.img_db['tl_wall']
 Animation.add_img(pygame.transform.rotate(tl_wall, -90), 'tr_wall', save=True)
 Animation.add_img(pygame.transform.rotate(tl_wall, -180), 'br_wall', save=True)
 Animation.add_img(pygame.transform.rotate(tl_wall, -270), 'bl_wall', save=True)
-
 
 class Tile(Entity):
     TILE_MAP = {
@@ -86,7 +91,7 @@ class GameMap:
                     self.rooms['all'][category][i][j] = Tile.get_deserialized(**tile)
 
     def load_room(self):
-        self.room_size = (16, 7)
+        self.room_size = (18+6, 12)
 
         self.grid = [[0]*self.room_size[0] for _ in range(self.room_size[1])]
         self.collision_tiles = []
@@ -109,6 +114,7 @@ class GameMap:
             (GameMap.EDGE_PAN, 2*self.center[0] - GameMap.EDGE_PAN),
             (GameMap.EDGE_PAN, 2*self.center[1] - GameMap.EDGE_PAN),
         )
+
 
 
     @property
@@ -141,20 +147,23 @@ class GameMap:
         # self.offset = target
         self.real_offset += (target-self.real_offset) * 0.05
         for i in range(2):
+            if abs(self.edges[i][0] - self.edges[i][1]) < self.room_px_size[i] + 2*GameMap.EDGE_PAN:
+                continue
 
             for direction, edge in enumerate(self.edges[i]):
                 adjusting = False
                 if direction == 0:  # left
-                    if self.real_offset[i] < edge:
+                    if self.real_offset[i] > edge:
                         print(f'{i} {self.real_offset[i]} < {edge}')
                         adjusting = True
                 elif direction == 1:  # right
-                    if self.real_offset[i] > edge:
+                    if self.real_offset[i] < edge:
                         print(f'{i} {self.real_offset[i]} > {edge}')
                         adjusting = True
 
                 if adjusting:
-                    self.real_offset[i] += (-self.real_offset[i] + edge) * 1
+                    self.real_offset[i] = edge
+                    # self.real_offset[i] += (-self.real_offset[i] + edge) * 1
                     # self.real_offset[i] = 0.1*(self.real_offset[i] - edge)**2
                     # from random import uniform
                     # print(f'too big {uniform(0, 1)}')

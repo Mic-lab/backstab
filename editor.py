@@ -114,6 +114,8 @@ tiles_str = [
     ('left_wall', 'ground', 'right_wall'),
     ('bl_wall', 'bottom_wall', 'br_wall'),
     ('rock',),
+    ('top_door', 'bottom_door', 'right_door'),
+    ('left_door',),
 ]
 
 rooms = load_rooms()
