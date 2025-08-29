@@ -1,5 +1,7 @@
+from copy import deepcopy
 from .entity import Entity
 from . import config
+from . import utils
 from .animation import Animation
 import pygame
 
@@ -15,6 +17,22 @@ Animation.add_img(pygame.transform.rotate(tl_wall, -270), 'bl_wall', save=True)
 
 
 class Tile(Entity):
+    TILE_MAP = {
+            '0': 'ground',
+            '1': 'wall',
+            '2': 'top_wall',
+            '3': 'bottom_wall',
+            '4': 'right_wall',
+            '5': 'left_wall',
+            '6': 'tl_wall',
+            '7': 'tr_wall',
+            '8': 'bl_wall',
+            '9': 'br_wall',
+            'r': 'rock',
+        }
+
+    NO_COLLISION_TILES = 'ground'.split()
+
     def __init__(self, collision, *args, **kwargs):
         init_args = (args, kwargs)
         self.collision = collision
@@ -34,15 +52,12 @@ class Tile(Entity):
         # d = self.__dict__
         # d['real_pos'] = tuple(d['real_pos'])
         # d = 
-        return cls(collision=True, **args)
+        name = args['name']
+        return cls(collision=not name in Tile.NO_COLLISION_TILES, **args)
 
 
 
 class GameMap:
-
-    map_size = (16, 9)
-    map_px_size = (map_size[0]*config.TILE_SIZE[0],
-                   map_size[1]*config.TILE_SIZE[1])
 
     MAP_LAYOUT = '''
     6222222222222227
@@ -56,40 +71,38 @@ class GameMap:
     8333333333333339
     '''
 
-    MAP_LAYOUT = '''
-    6222222222222227
-    5000000000000004
-    500rr0rr0r0rr004
-    500000000r000004
-    50000r000rr0r004
-    50000r0r0000r004
-    50000r000000r004
-    5000000000000004
-    8333333333333339
-    '''
-
-    TILE_MAP = {
-            '0': 'ground',
-            '1': 'wall',
-            '2': 'top_wall',
-            '3': 'bottom_wall',
-            '4': 'right_wall',
-            '5': 'left_wall',
-            '6': 'tl_wall',
-            '7': 'tr_wall',
-            '8': 'bl_wall',
-            '9': 'br_wall',
-            'r': 'rock',
-        }
-
-    COLLISION_TILES = tuple('12345679r')
-
     EDGE_PAN = 12
+    ROOMS_PATH = 'rooms.json'
 
-    def __init__(self):
-        self.center = [0.5*(config.CANVAS_SIZE[0]-GameMap.map_px_size[0]),
-                        0.5*(config.CANVAS_SIZE[1]-GameMap.map_px_size[1])]
-        # print(GameMap.map_px_size[1], config.CANVAS_SIZE[1])
+    def load_all_rooms(self):
+        rooms = utils.read_json(GameMap.ROOMS_PATH)
+        self.rooms = deepcopy(rooms)
+
+        for category, rooms in rooms['all'].items():
+            for i, room in enumerate(rooms):
+                print(f'{room=}')
+                for j, tile in enumerate(room):
+                    print(f'{tile=}')
+                    self.rooms['all'][category][i][j] = Tile.get_deserialized(**tile)
+
+    def load_room(self):
+        self.room_size = (16, 7)
+
+        self.grid = [[0]*self.room_size[0] for _ in range(self.room_size[1])]
+        self.collision_tiles = []
+        
+        for tile in self.tiles:
+            if tile.collision:
+                self.collision_tiles.append(tile.rect)
+                x, y = int(tile.pos[0] // config.TILE_SIZE[0]), int(tile.pos[1] // config.TILE_SIZE[1])
+                self.grid[y][x] = 1
+
+
+        self.room_px_size = (self.room_size[0]*config.TILE_SIZE[0],
+                            self.room_size[1]*config.TILE_SIZE[1])
+
+        self.center = [0.5*(config.CANVAS_SIZE[0]-self.room_px_size[0]),
+                        0.5*(config.CANVAS_SIZE[1]-self.room_px_size[1])]
         self.real_offset = self.center.copy()
 
         self.edges = (
@@ -97,27 +110,31 @@ class GameMap:
             (GameMap.EDGE_PAN, 2*self.center[1] - GameMap.EDGE_PAN),
         )
 
-        self.tiles = []
-        self.collision_tiles = []
 
-        self.grid = []
+    @property
+    def tiles(self):
+        return self.rooms['all'][self.room_id[0]][self.room_id[1]]
 
-        array_layout = [row.strip() for row in GameMap.MAP_LAYOUT.split('\n') if row.strip()]
-        for i, row in enumerate(array_layout):
+    def __init__(self):
+        self.load_all_rooms()
 
-            self.grid.append([])
+        self.room_id = ('normal', 0)
+        self.load_room()
 
-            for j, str_tile in enumerate(row):
-                name = GameMap.TILE_MAP[str_tile]
-                collision = str_tile in GameMap.COLLISION_TILES
-                tile = Tile(pos=(j*config.TILE_SIZE[0],
-                                            i*config.TILE_SIZE[1]), name=name,
-                                       collision=collision)
-                self.tiles.append(tile)
-                if collision: self.collision_tiles.append(tile.rect)
 
-                grid_id = 1 if collision else 0
-                self.grid[i].append(grid_id)
+            # self.grid.append([])
+            #
+            # for j, str_tile in enumerate(row):
+            #     name = GameMap.TILE_MAP[str_tile]
+            #     collision = str_tile in GameMap.COLLISION_TILES
+            #     tile = Tile(pos=(j*config.TILE_SIZE[0],
+            #                                 i*config.TILE_SIZE[1]), name=name,
+            #                            collision=collision)
+            #     self.tiles.append(tile)
+            #     if collision: self.collision_tiles.append(tile.rect)
+            #
+            #     grid_id = 1 if collision else 0
+            #     self.grid[i].append(grid_id)
 
     def update_offset(self, player):
         target = 0.5*pygame.Vector2(config.CANVAS_SIZE) - player.pos

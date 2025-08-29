@@ -68,13 +68,13 @@ class Player(PhysicsEntity):
         output = {}
 
         if not self.dash_timer.done:
-            if self.dash_timer.frame % 2 == 0:
+            if self.dash_timer.frame % 1 == 0:
                 trail_surf = self.img.copy()
                 trail_surf.set_alpha(150)
                 trail = {
                     'surf': trail_surf,
                     'pos': self.pos,
-                    'change': 15,
+                    'change': 20,
                 }
                 output['trail'] = trail
         else:

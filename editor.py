@@ -32,9 +32,9 @@ def load_rooms(path='rooms.json'):
         save_rooms(rooms)
         return rooms
 
-    print(f'{rooms=}')
     serialized_rooms = rooms
     rooms_out = deepcopy(serialized_rooms)
+
 
     for category, rooms in serialized_rooms['all'].items():
         for i, room in enumerate(rooms):
@@ -46,8 +46,8 @@ def load_rooms(path='rooms.json'):
 
 def save_rooms(rooms, path='rooms.json'):
     print('Saving')
-    print(f'{rooms=}')
-    print()
+    # print(f'{rooms=}')
+    # print()
     json_rooms = deepcopy(rooms)
     for category, rooms in rooms['all'].items():
         for i, room in enumerate(rooms):

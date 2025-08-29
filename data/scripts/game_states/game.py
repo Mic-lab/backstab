@@ -30,9 +30,9 @@ class Game(State):
 
         self.enemies = []
         self.enemies.extend([
-            BasicEnemy(pos=(200, 120), name='civilian', action='idle'),
-            BasicEnemy(pos=(220, 150), name='civilian', action='idle'),
-            Eye(pos=(250, 100), name='eye', action='opened'),
+            BasicEnemy(pos=(100, 50), name='civilian', action='idle'),
+            BasicEnemy(pos=(100, 50), name='civilian', action='idle'),
+            Eye(pos=(150, 50), name='eye', action='opened'),
         ])
 
         self.timers = {

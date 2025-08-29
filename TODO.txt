@@ -20,6 +20,7 @@ IDEAS
         - minecraft vid with 10 pumpkins have to be mined by player. could do smoething similar
 
 TODO
+    - camera should stop the other way cause rn it doesn't work with big rooms
     - Fix pathfinding (not doing diagonals on walls)
     - animations and turn enemies when facing player
     - better system for setting rect of static obj
@@ -30,6 +31,10 @@ TODO
     - haev way of not looping animation (like on the eye for ex)
     - end enemy mid stab
     - stab radius uses the center of the enemy
+
+    - Optimization: load_room: self.grid gets tiles with Tile objects,
+      converts to matrix, then back to Tile objects. Can be converted
+      directly instead
 
 - comment
 

@@ -89,7 +89,7 @@ class PathFinder:
         pass
 
     def get_path(self, game_map, start, end):
-        grid, grid_size = deepcopy(game_map.grid), game_map.map_size
+        grid, grid_size = deepcopy(game_map.grid), game_map.room_size
         # start = grid[int(start[1])][int(start[0])]
         # end = grid[int(end[1])][int(end[0])]
         # print(f'{grid=}')
