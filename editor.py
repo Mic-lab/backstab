@@ -18,7 +18,7 @@ def get_base_tiles():
         for j, name in enumerate(row):
             pos = (BASE_PAN[0] + j * TILE_SIZE + (j * PAN),
                    BASE_PAN[1] + i * TILE_SIZE + (i * PAN))
-            tiles.append(Tile(pos=pos, name=name, collision=True))
+            tiles.append(Tile(pos=pos, name=name))
     return tiles
 
 def load_rooms(path='rooms.json'):

@@ -3,6 +3,7 @@ from .entity import Entity
 from . import config
 from . import utils
 from .animation import Animation
+from math import ceil
 import pygame
 
 # TODO: Make less redundant
@@ -38,10 +39,10 @@ class Tile(Entity):
 
     NO_COLLISION_TILES = 'ground'.split()
 
-    def __init__(self, collision, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         init_args = (args, kwargs)
-        self.collision = collision
         super().__init__(*args, **kwargs)
+        self.collision=not self.name in Tile.NO_COLLISION_TILES
 
     def get_serialized(self):
         # d = self.__dict__
@@ -58,40 +59,44 @@ class Tile(Entity):
         # d['real_pos'] = tuple(d['real_pos'])
         # d = 
         name = args['name']
-        return cls(collision=not name in Tile.NO_COLLISION_TILES, **args)
+        return cls(**args)
 
-
-
-class GameMap:
-
-    MAP_LAYOUT = '''
-    6222222222222227
-    500r000000000004
-    500r000000000r04
-    5000000000000004
-    500rrrr000000004
-    500r000000000004
-    500r000000000r04
-    5000000000000004
-    8333333333333339
-    '''
-
-    EDGE_PAN = 12
+class Room:
     ROOMS_PATH = 'rooms.json'
 
-    def load_all_rooms(self):
-        rooms = utils.read_json(GameMap.ROOMS_PATH)
-        self.rooms = deepcopy(rooms)
+    BASE_ROOM_SIZE = (17, 9)
+    DOOR_POSITIONS = {
+        'top': (int(BASE_ROOM_SIZE[0] / 2), 0),
+        'bottom': (int(BASE_ROOM_SIZE[0] / 2), BASE_ROOM_SIZE[1]-1),
+        'left': (0, int(BASE_ROOM_SIZE[1] / 2)),
+        'right': (BASE_ROOM_SIZE[0]-1, int(BASE_ROOM_SIZE[1] / 2)),
+    }
+
+    @classmethod
+    def load_all_rooms(cls):
+        print('[Importing rooms]')
+        rooms = utils.read_json(cls.ROOMS_PATH)
+        cls.rooms = deepcopy(rooms)
 
         for category, rooms in rooms['all'].items():
             for i, room in enumerate(rooms):
-                print(f'{room=}')
+                cls.rooms['all'][category][i] = {}
+                # print(f'{room=}')
                 for j, tile in enumerate(room):
-                    print(f'{tile=}')
-                    self.rooms['all'][category][i][j] = Tile.get_deserialized(**tile)
+                    # print(f'{tile=}')
+                    # cls.rooms['all'][category][i][j] = Tile.get_deserialized(**tile)
+                    tile_obj = Tile.get_deserialized(**tile)
+                    key = (int(tile_obj.pos[0] // config.TILE_SIZE[0]),
+                           int(tile_obj.pos[1] // config.TILE_SIZE[1]))
+                    cls.rooms['all'][category][i][key] = tile_obj
+                    if i == 3:
+                        print(f'{key}: Tile({tile["pos"]})')
 
-    def load_room(self):
-        self.room_size = (18+6, 12)
+    def __init__(self, id_, adj_rooms=None):
+
+        self.id = id_
+        # self.room_size = (18+6, 12)
+        self.room_size = (17, 9)
 
         self.grid = [[0]*self.room_size[0] for _ in range(self.room_size[1])]
         self.collision_tiles = []
@@ -117,37 +122,93 @@ class GameMap:
 
 
 
+        if adj_rooms is None: adj_rooms = {}
+        self.adj_rooms = {
+            'top': None,
+            'bottom': None,
+            'left': None,
+            'right': None, } | adj_rooms
+
+        self.update_connections()
+
+    def update_connections(self):
+        for direction, room in self.adj_rooms.items():
+            if not room:
+                continue
+
+            door_cell_pos = Room.DOOR_POSITIONS[direction]
+            # door_cell_pos = (door_cell_pos[0]+10, door_cell_pos[1]+5)
+            print(list(self.tiles_dict.keys()), '<--')
+            door_px_pos = self.tiles_dict[door_cell_pos].pos
+            print(f'{door_cell_pos=}')
+
+            door_name = f'{direction}_door'
+            # TODO: Change door for special adjacent rooms
+            # Also for door to work on any background, maybe door should be
+            # transparent
+
+            door_tile = Tile(pos=door_px_pos, name=door_name)
+
+            self.tiles_dict[door_cell_pos] = door_tile
+
     @property
     def tiles(self):
-        return self.rooms['all'][self.room_id[0]][self.room_id[1]]
+        return self.rooms['all'][self.id[0]][self.id[1]].values()
+
+    @property
+    def tiles_dict(self):
+        return self.rooms['all'][self.id[0]][self.id[1]]
+
+class GameMap:
+
+    MAP_LAYOUT = '''
+    6222222222222227
+    500r000000000004
+    500r000000000r04
+    5000000000000004
+    500rrrr000000004
+    500r000000000004
+    500r000000000r04
+    5000000000000004
+    8333333333333339
+    '''
+
+    EDGE_PAN = 12
+
+    def generate_map(self):
+        self.map_rooms = [
+            Room(('normal', 3)),
+            Room(('normal', 1)),
+        ]
+
+        self.map_rooms[0].adj_rooms['top'] = self.map_rooms[1]
+        self.map_rooms[1].adj_rooms['bottom'] = self.map_rooms[0]
+        self.map_rooms[0].update_connections()
+        self.map_rooms[1].update_connections()
 
     def __init__(self):
-        self.load_all_rooms()
+        self.generate_map()
+        self.set_room(self.map_rooms[0])
 
-        self.room_id = ('normal', 0)
-        self.load_room()
-
-
-            # self.grid.append([])
-            #
-            # for j, str_tile in enumerate(row):
-            #     name = GameMap.TILE_MAP[str_tile]
-            #     collision = str_tile in GameMap.COLLISION_TILES
-            #     tile = Tile(pos=(j*config.TILE_SIZE[0],
-            #                                 i*config.TILE_SIZE[1]), name=name,
-            #                            collision=collision)
-            #     self.tiles.append(tile)
-            #     if collision: self.collision_tiles.append(tile.rect)
-            #
-            #     grid_id = 1 if collision else 0
-            #     self.grid[i].append(grid_id)
+    def set_room(self, room):
+        self.room = room
+        self.tiles = room.tiles
+        self.room_px_size = room.room_px_size
+        self.real_offset = room.center.copy()
+        self.collision_tiles = room.collision_tiles
+        self.grid = room.grid
+        self.room_size = room.room_size
+        self.edges = self.room.edges
 
     def update_offset(self, player):
+        # TODO: Optimize by not calculating target if edge
         target = 0.5*pygame.Vector2(config.CANVAS_SIZE) - player.pos
         # self.offset = target
         self.real_offset += (target-self.real_offset) * 0.05
         for i in range(2):
             if abs(self.edges[i][0] - self.edges[i][1]) < self.room_px_size[i] + 2*GameMap.EDGE_PAN:
+                
+                self.real_offset[i] = self.room.center[i]
                 continue
 
             for direction, edge in enumerate(self.edges[i]):
@@ -174,3 +235,7 @@ class GameMap:
     def render(self, surf):
         for tile in self.tiles:
             tile.render(surf, offset=self.offset)
+
+
+
+Room.load_all_rooms()
