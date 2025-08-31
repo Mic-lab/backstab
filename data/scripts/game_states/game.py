@@ -22,7 +22,7 @@ class Game(State):
 
         self.game_surf = pygame.Surface(config.CANVAS_SIZE)
 
-        self.player = Player(pos=(150, 40), name='side', action='idle')
+        self.player = Player(pos=(150, 40), name='side', action='idle', state_manager=self)
         self.e_speed = 1.5
         self.health = Health()
 

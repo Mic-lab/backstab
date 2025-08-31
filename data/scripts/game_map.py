@@ -1,4 +1,5 @@
 from copy import deepcopy
+from .creatures import Player
 from .entity import Entity
 from . import config
 from . import utils
@@ -53,6 +54,9 @@ class Tile(Entity):
                 'pos': tuple(self.pos),
         }
 
+    def collide(self, entity: Entity, direction):
+        pass
+
     @classmethod
     def get_deserialized(cls, **args):
         # d = self.__dict__
@@ -61,7 +65,19 @@ class Tile(Entity):
         name = args['name']
         return cls(**args)
 
+class DoorTile(Tile):
+
+    def collide(self, entity: Entity, direction):
+        if isinstance(entity, Player):
+            print(f'Collision with door ({self.name=})')
+            game_map = entity.state_manager.game_map
+
+            entity.real_pos = pygame.Vector2(100, 100)
+            game_map.change_room(direction)
+
+
 class Room:
+
     ROOMS_PATH = 'rooms.json'
 
     BASE_ROOM_SIZE = (17, 9)
@@ -92,6 +108,14 @@ class Room:
                     if i == 3:
                         print(f'{key}: Tile({tile["pos"]})')
 
+    def add_collision_tile(self, tile):
+        if tile.collision:
+            # self.collision_tiles.append(tile.rect)
+            self.collision_tiles.append(tile)
+            x, y = int(tile.pos[0] // config.TILE_SIZE[0]), int(tile.pos[1] // config.TILE_SIZE[1])
+            self.grid[y][x] = 1
+
+
     def __init__(self, id_, adj_rooms=None):
 
         self.id = id_
@@ -102,10 +126,7 @@ class Room:
         self.collision_tiles = []
         
         for tile in self.tiles:
-            if tile.collision:
-                self.collision_tiles.append(tile.rect)
-                x, y = int(tile.pos[0] // config.TILE_SIZE[0]), int(tile.pos[1] // config.TILE_SIZE[1])
-                self.grid[y][x] = 1
+            self.add_collision_tile(tile)
 
 
         self.room_px_size = (self.room_size[0]*config.TILE_SIZE[0],
@@ -139,7 +160,9 @@ class Room:
             door_cell_pos = Room.DOOR_POSITIONS[direction]
             # door_cell_pos = (door_cell_pos[0]+10, door_cell_pos[1]+5)
             print(list(self.tiles_dict.keys()), '<--')
-            door_px_pos = self.tiles_dict[door_cell_pos].pos
+            og_tile = self.tiles_dict[door_cell_pos]
+            if og_tile in self.collision_tiles: self.collision_tiles.remove(og_tile)
+            door_px_pos = og_tile.pos
             print(f'{door_cell_pos=}')
 
             door_name = f'{direction}_door'
@@ -147,9 +170,10 @@ class Room:
             # Also for door to work on any background, maybe door should be
             # transparent
 
-            door_tile = Tile(pos=door_px_pos, name=door_name)
+            door_tile = DoorTile(pos=door_px_pos, name=door_name)
 
             self.tiles_dict[door_cell_pos] = door_tile
+            self.add_collision_tile(door_tile)
 
     @property
     def tiles(self):
@@ -231,6 +255,9 @@ class GameMap:
 
         # self.real_offset = self.center
         self.offset = pygame.Vector2(int(self.real_offset[0]), int(self.real_offset[1]))
+
+    def change_room(self, direction):
+        self.set_room(self.room.adj_rooms[direction])
 
     def render(self, surf):
         for tile in self.tiles:

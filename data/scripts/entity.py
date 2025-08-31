@@ -5,7 +5,8 @@ from pygame import Vector2
 from .animation import Animation
     
 class Entity:
-    def __init__(self, pos, name, action=None):
+    def __init__(self, pos, name, action=None, state_manager=None):
+        self.state_manager = state_manager
         self.real_pos = Vector2(pos)
         self.name = name
         self.animation = Animation(name, action)
@@ -57,9 +58,9 @@ class PhysicsEntity(Entity):
         self.vel = Vector2(vel)
         self.acceleration = Vector2(acceleration)
         self.max_vel = max_vel
-        self.collision_directions = {'up': False,
+        self.collision_directions = {'top': False,
                                      'right': False,
-                                     'down': False,
+                                     'bottom': False,
                                      'left': False}
 
     @property
@@ -83,20 +84,22 @@ class PhysicsEntity(Entity):
             self.real_pos += self.vel
             return
 
-        self.collision_directions = {'up': False,
+        self.collision_directions = {'top': False,
                                      'right': False,
-                                     'down': False,
+                                     'bottom': False,
                                      'left': False}
 
         for axis in range(2):
             self.resolve_collisions(axis, rects)
 
-    def resolve_collisions(self, axis, rects):
+    def resolve_collisions(self, axis, tiles):
         # NOTE: Instead of breaking when finding tiles, it can also be useful
         # to append all collided tiles to the collisions directions
         self.real_pos[axis] += self.vel[axis]
         direction = None
-        for rect in rects:
+        for tile in tiles:
+            rect = tile.rect
+
             # print(f'{self.rect=} {self.old_rect=}')
             if rect == self.old_rect:
                 continue
@@ -120,7 +123,7 @@ class PhysicsEntity(Entity):
                         direction = 'top'
                     elif self.vel[1] > 0:
                         delta = self.rect.bottom - rect.top
-                        direction = 'down'
+                        direction = 'bottom'
                     else:
                         delta = 0
                         print(f'[WARNING] {self} Didn\'t resolve collision last frame or rect changed sizes ({axis=})')
@@ -129,6 +132,10 @@ class PhysicsEntity(Entity):
                 v[axis] = delta
                 self.change_pos(-v)
                 if direction: self.collision_directions[direction] = True
-                return
+                tile.collide(self, direction)
+
+                # Return removed cause tile.collide must be called
+                # for all touching tiles
+                # return 
 
 

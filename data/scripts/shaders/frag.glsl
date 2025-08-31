@@ -17,7 +17,7 @@ out vec4 f_color;
 
 const float PI = 3.14159265359;
 const vec2 gridSize = vec2(64, 64);
-const float caCoef = 0.005;
+const float caCoef = 0.002;
 const float shakeCoef = 0.01;
 
 // TODO: get these from config.py and update scale 
@@ -186,7 +186,7 @@ void main() {
     }
 
     // Chromatic abberation
-    if (caTimer >= 0.0) {
+    if (caTimer>= 0.0) {
         float caIntensity = (1.0 - caTimer)*centerDist * caCoef;
         vec2 sampleVec = vec2(0.0, caIntensity);
         float caSample1 = texture(canvasTex, uvs + sampleVec).r;
@@ -220,6 +220,5 @@ void main() {
         f_color = mix(f_color, vec4(0, 0, 0, 0), 0.5*pow(1-hitTimer, 2));
     }
     // f_color = mix(f_color, vec4(), 0.9999);
-
 }
 
