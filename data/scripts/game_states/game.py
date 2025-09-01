@@ -139,6 +139,7 @@ class Game(State):
 
         shader_handler.vars['circles'] = [(self.player.rect.centerx / config.CANVAS_SIZE[0],
                                            self.player.rect.centery / config.CANVAS_SIZE[1],
+                                           # (self.player.stab_radius-12+100) / config.CANVAS_SIZE[0], 1)]
                                            (self.player.stab_radius-12) / config.CANVAS_SIZE[0], 1)]
 
         self.player.render(self.game_surf, self.game_map.offset)

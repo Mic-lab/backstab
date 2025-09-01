@@ -89,20 +89,36 @@ void main() {
             vec2 center = vec2(circles[i].xy);
 
             float d = distance(vec2(offsetPxUvs.x, offsetPxUvs.y*canvasRatio), vec2(center.x, center.y*canvasRatio));
-            if (d < circles[i][2] && d > 0.07) {
+            if (d < circles[i][2] && d > 0.070) {
                 // float intensity = (d - 0.07) / circles[i][2];
                 // if (x > 1) {
                 //     x = 1;
                 // }
 
+                // if (f_color.length() < 0.3) {
+                //     f_color = mix(f_color, vec4(0.1, 0, 0, 0), 1);
+                //     continue;
+                // }
+
                 float shine = 0.5+0.5*(pow(abs(sin(uvsPx.y*20+uvsPx.x*10)*cos(uvsPx.y*15)), 4));
-                // float shine = 0.8+0.4*(pow(abs(sin(uvsPx.y*20+uvsPx.x*10)*cos(uvsPx.y*15)), 5));
+                float shine2 = 1*(pow(abs(sin(uvsPx.y*10+uvsPx.x*25)*sin(uvsPx.x*10)), 4));
+                // float shine2 = 1*(pow(abs(sin(uvsPx.y*10*uvsPx.x*25)*sin(uvsPx.x*10)), 4));
+                // float shine2 = 0.1*(pow(abs(tan(uvsPx.y*10*uvsPx.x*25)), 1));
 
                 // if (f_color.x+f_color.y < 0.3) {
                 //     f_color = vec4(0.5,0.5, 0.5, 0);
                 // }
                 // else {
+                // }
+
                 f_color = mix(f_color, vec4(pow(1.5*shine, 1.5), 1.3*shine, 2.2*shine, 0), 0.7*shine);
+
+                f_color = mix(f_color, vec4(0.8, shine2*0.5, shine2*2, 0), 0.5*shine2);
+
+                // float shine_comb = shine + shine2;
+
+                // if (shine_comb < 1 && shine_comb > 0.95){
+                //     f_color = mix(f_color, vec4(1, 1, 0, 0), 0.7);
                 // }
 
                 if (shine > 0.75 && shine < 0.8) {
