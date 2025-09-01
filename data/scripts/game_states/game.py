@@ -28,12 +28,12 @@ class Game(State):
 
         self.game_map = GameMap()
 
-        self.enemies = []
-        self.enemies.extend([
-            # BasicEnemy(pos=(100, 50), name='civilian', action='idle'),
-            # BasicEnemy(pos=(100, 50), name='civilian', action='idle'),
-            # Eye(pos=(150, 50), name='eye', action='opened'),
-        ])
+        # self.enemies = []
+        # self.enemies.extend([
+        #     BasicEnemy(pos=(100, 50), name='civilian', action='idle'),
+        #     BasicEnemy(pos=(100, 50), name='civilian', action='idle'),
+        #     Eye(pos=(150, 50), name='eye', action='opened'),
+        # ])
 
         self.timers = {
             'hit': Timer(30, start=False)
@@ -90,6 +90,9 @@ class Game(State):
         #     ])
 
 
+        # Update enemies -----
+        self.enemies = self.game_map.room.enemies
+
         new_enemies = []
         for enemy in self.enemies:
             update_data = enemy.update(self.game_map, self.player, self.enemies, collisions)
@@ -128,6 +131,7 @@ class Game(State):
             new_enemies.append(enemy)
 
         self.enemies = new_enemies
+        self.game_map.room.enemies = self.enemies
 
         update_data = self.player.update(self.game_map.offset, self.handler.inputs, self.dangers, collisions)
 

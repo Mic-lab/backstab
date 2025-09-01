@@ -1,5 +1,5 @@
 from copy import deepcopy
-from .creatures import Player
+from .creatures import Player, BasicEnemy, Eye
 from .entity import Entity
 from . import config
 from . import utils
@@ -138,31 +138,23 @@ class Room:
 
 
     def __init__(self, id_, adj_rooms=None):
-
         self.id = id_
         # self.room_size = (18+6, 12)
         self.room_size = (17, 9)
-
         self.grid = [[0]*self.room_size[0] for _ in range(self.room_size[1])]
         self.collision_tiles = []
-        
         for tile in self.tiles:
             self.add_collision_tile(tile)
-
-
         self.room_px_size = (self.room_size[0]*config.TILE_SIZE[0],
                             self.room_size[1]*config.TILE_SIZE[1])
-
         self.center = [0.5*(config.CANVAS_SIZE[0]-self.room_px_size[0]),
                         0.5*(config.CANVAS_SIZE[1]-self.room_px_size[1])]
         self.real_offset = self.center.copy()
-
         self.edges = (
             (GameMap.EDGE_PAN, 2*self.center[0] - GameMap.EDGE_PAN),
             (GameMap.EDGE_PAN, 2*self.center[1] - GameMap.EDGE_PAN),
         )
-
-
+        self.enemies = []
 
         if adj_rooms is None: adj_rooms = {}
         self.adj_rooms = {
@@ -233,6 +225,11 @@ class GameMap:
         
         for room in self.map_rooms:
             room.update_connections()
+            room.enemies.extend([
+                BasicEnemy(pos=(30, 30), name='civilian', action='idle'),
+                BasicEnemy(pos=(40, 30), name='civilian', action='idle'),
+                Eye(pos=(50, 30), name='eye', action='opened'),
+            ])
 
     def __init__(self):
         self.generate_map()
