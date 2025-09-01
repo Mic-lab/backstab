@@ -72,7 +72,17 @@ class DoorTile(Tile):
             print(f'Collision with door ({self.name=})')
             game_map = entity.state_manager.game_map
 
-            entity.real_pos = pygame.Vector2(100, 100)
+            # entity.real_pos = pygame.Vector2(100, 100)
+            # entity.real_pos = Room.PLAYER_TRANSITION_POS[direction] - 0.5*pygame.Vector2(entity.rect.w, entity.rect.h)
+            # entity.real_pos = Room.PLAYER_TRANSITION_POS[direction] - 0.5*pygame.Vector2(entity.animation.rect.center)
+            # entity.real_pos = list(Room.PLAYER_TRANSITION_POS[direction]) # - 0.5*pygame.Vector2(entity.rect.w, entity.rect.h)
+
+            entity.real_pos = Room.PLAYER_TRANSITION_POS[direction]
+            rect = entity.rect
+            rect.center = Room.PLAYER_TRANSITION_POS[direction]
+            rect.topleft -= pygame.Vector2(entity.animation.rect.topleft)
+            entity.real_pos = pygame.Vector2(rect.topleft)
+
             game_map.change_room(direction)
 
 
@@ -80,6 +90,7 @@ class Room:
 
     ROOMS_PATH = 'rooms.json'
 
+    # Cell pos
     BASE_ROOM_SIZE = (17, 9)
     DOOR_POSITIONS = {
         'top': (int(BASE_ROOM_SIZE[0] / 2), 0),
@@ -87,6 +98,18 @@ class Room:
         'left': (0, int(BASE_ROOM_SIZE[1] / 2)),
         'right': (BASE_ROOM_SIZE[0]-1, int(BASE_ROOM_SIZE[1] / 2)),
     }
+
+    # Px pos
+    ROOM_POS_CHANGE = int(config.TILE_SIZE[0] * 1.5)
+    PLAYER_TRANSITION_POS = {
+        'bottom': config.TILE_SIZE[1] * pygame.Vector2(DOOR_POSITIONS['top']) + (config.TILE_SIZE[0]*0.5, 1.5*config.TILE_SIZE[0]),
+        'top': config.TILE_SIZE[1] * pygame.Vector2(DOOR_POSITIONS['bottom']) + (config.TILE_SIZE[0]*0.5, -0.5*config.TILE_SIZE[0]),
+        'right': config.TILE_SIZE[0] * pygame.Vector2(DOOR_POSITIONS['left']) + (1.5*config.TILE_SIZE[0], config.TILE_SIZE[0]*0.5),
+        'left': config.TILE_SIZE[0] * pygame.Vector2(DOOR_POSITIONS['right']) + (-0.5*config.TILE_SIZE[0], config.TILE_SIZE[0]*0.5),
+    }
+
+    # for key in PLAYER_TRANSITION_POS:
+    #     PLAYER_TRANSITION_POS[key] = (2*config.TILE_SIZE[0], 2*config.TILE_SIZE[0])
 
     @classmethod
     def load_all_rooms(cls):
@@ -105,8 +128,6 @@ class Room:
                     key = (int(tile_obj.pos[0] // config.TILE_SIZE[0]),
                            int(tile_obj.pos[1] // config.TILE_SIZE[1]))
                     cls.rooms['all'][category][i][key] = tile_obj
-                    if i == 3:
-                        print(f'{key}: Tile({tile["pos"]})')
 
     def add_collision_tile(self, tile):
         if tile.collision:
@@ -159,11 +180,9 @@ class Room:
 
             door_cell_pos = Room.DOOR_POSITIONS[direction]
             # door_cell_pos = (door_cell_pos[0]+10, door_cell_pos[1]+5)
-            print(list(self.tiles_dict.keys()), '<--')
             og_tile = self.tiles_dict[door_cell_pos]
             if og_tile in self.collision_tiles: self.collision_tiles.remove(og_tile)
             door_px_pos = og_tile.pos
-            print(f'{door_cell_pos=}')
 
             door_name = f'{direction}_door'
             # TODO: Change door for special adjacent rooms
@@ -201,14 +220,19 @@ class GameMap:
 
     def generate_map(self):
         self.map_rooms = [
-            Room(('normal', 3)),
+            Room(('normal', 0)),
             Room(('normal', 1)),
+            Room(('normal', 2)),
+            Room(('normal', 3)),
         ]
 
-        self.map_rooms[0].adj_rooms['top'] = self.map_rooms[1]
-        self.map_rooms[1].adj_rooms['bottom'] = self.map_rooms[0]
-        self.map_rooms[0].update_connections()
-        self.map_rooms[1].update_connections()
+        self.map_rooms[0].adj_rooms |= {'right': self.map_rooms[1], 'bottom': self.map_rooms[2]}
+        self.map_rooms[1].adj_rooms |= {'left': self.map_rooms[0], 'bottom': self.map_rooms[3]}
+        self.map_rooms[2].adj_rooms |= {'top': self.map_rooms[0], 'right': self.map_rooms[3]}
+        self.map_rooms[3].adj_rooms |= {'left': self.map_rooms[2], 'top': self.map_rooms[1]}
+        
+        for room in self.map_rooms:
+            room.update_connections()
 
     def __init__(self):
         self.generate_map()
@@ -239,11 +263,11 @@ class GameMap:
                 adjusting = False
                 if direction == 0:  # left
                     if self.real_offset[i] > edge:
-                        print(f'{i} {self.real_offset[i]} < {edge}')
+                        # print(f'{i} {self.real_offset[i]} < {edge}')
                         adjusting = True
                 elif direction == 1:  # right
                     if self.real_offset[i] < edge:
-                        print(f'{i} {self.real_offset[i]} > {edge}')
+                        # print(f'{i} {self.real_offset[i]} > {edge}')
                         adjusting = True
 
                 if adjusting:

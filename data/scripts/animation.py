@@ -1,5 +1,6 @@
 import pygame
 import os
+from .screen import screen  # to initialize display
 from . import utils
 from pprint import pprint
 
@@ -12,7 +13,11 @@ class Animation:
     }
 
     RECT_OVERWRITES = {
-        'rock': pygame.Rect(2, 0, 24-4, 24)
+        'rock': pygame.Rect(2, 0, 24-4, 24),
+        'top_door': pygame.Rect(0, 0, 24, 12),
+        'bottom_door': pygame.Rect(0, 12, 24, 12),
+        'left_door': pygame.Rect(0, 0, 12, 24),
+        'right_door': pygame.Rect(12, 0, 12, 24),
     }
 
     @staticmethod

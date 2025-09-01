@@ -4,6 +4,12 @@ JUICE
     - shader bg
 
 IDEAS
+
+    - Broken doors
+        - Room when you enter it the door behinds you close and youre stuck!
+            - not sure how to expand upon this
+        - Infinintly looping rooms
+
     - You must use enemies to transport another enemiy using the collision
     - Item that make you drop glue on the ground where u walk which slows down enemies that walk on it
     - Increase attack range

@@ -34,6 +34,35 @@ float linearEase(float x) {
     return -2*abs(x - 0.5) + 1;
 }
 
+
+vec3 hueShift( vec3 color, float hueAdjust ){
+
+    const vec3  kRGBToYPrime = vec3 (0.299, 0.587, 0.114);
+    const vec3  kRGBToI      = vec3 (0.596, -0.275, -0.321);
+    const vec3  kRGBToQ      = vec3 (0.212, -0.523, 0.311);
+
+    const vec3  kYIQToR     = vec3 (1.0, 0.956, 0.621);
+    const vec3  kYIQToG     = vec3 (1.0, -0.272, -0.647);
+    const vec3  kYIQToB     = vec3 (1.0, -1.107, 1.704);
+
+    float   YPrime  = dot (color, kRGBToYPrime);
+    float   I       = dot (color, kRGBToI);
+    float   Q       = dot (color, kRGBToQ);
+    float   hue     = atan (Q, I);
+    float   chroma  = sqrt (I * I + Q * Q);
+
+    hue += hueAdjust;
+
+    Q = chroma * sin (hue);
+    I = chroma * cos (hue);
+
+    vec3    yIQ   = vec3 (YPrime, I, Q);
+
+    return vec3( dot (yIQ, kYIQToR), dot (yIQ, kYIQToG), dot (yIQ, kYIQToB) );
+
+}
+
+
 void main() {
     f_color = vec4(texture(canvasTex, uvs).rgb, 1.0);
     float centerDist = distance(uvs, vec2(0.5, 0.5));
@@ -66,19 +95,19 @@ void main() {
                 //     x = 1;
                 // }
 
-                float shine = 0.6+0.4*(pow(abs(sin(uvsPx.y*20+uvsPx.x*10)*cos(uvsPx.y*15)), 5));
+                float shine = 0.5+0.5*(pow(abs(sin(uvsPx.y*20+uvsPx.x*10)*cos(uvsPx.y*15)), 4));
                 // float shine = 0.8+0.4*(pow(abs(sin(uvsPx.y*20+uvsPx.x*10)*cos(uvsPx.y*15)), 5));
 
                 // if (f_color.x+f_color.y < 0.3) {
                 //     f_color = vec4(0.5,0.5, 0.5, 0);
                 // }
                 // else {
-                f_color = mix(f_color, vec4(pow(1.5*shine, 1.5), 1.3*shine, 2.2*shine, 0), 0.5*shine);
+                f_color = mix(f_color, vec4(pow(1.5*shine, 1.5), 1.3*shine, 2.2*shine, 0), 0.7*shine);
                 // }
 
                 if (shine > 0.75 && shine < 0.8) {
                     // f_color = mix(f_color, vec4(0.5, 1, 1, 0), shine);
-                    f_color = mix(f_color, vec4(0.8, 0.8, 1, 0), shine);
+                    f_color = mix(f_color, vec4(0.5, 0.8, 1, 0), shine);
                 }
                 
             }
@@ -220,5 +249,7 @@ void main() {
         f_color = mix(f_color, vec4(0, 0, 0, 0), 0.5*pow(1-hitTimer, 2));
     }
     // f_color = mix(f_color, vec4(), 0.9999);
+
+    // f_color = vec4(hueShift(f_color.rgb, 9), 0);
 }
 
