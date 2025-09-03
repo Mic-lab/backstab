@@ -26,33 +26,65 @@ class Stab(Entity):
         base_img = super().img
         return pygame.transform.rotate(base_img, self.angle)
 
+class Dash:
+
+    DEFAULT_CHARGE_TIME = 60
+
+    def __init__(self, duration=DEFAULT_CHARGE_TIME):
+        self.duration = duration
+        self.charge_timer = Timer(self.duration)
+
+    def update(self):
+        self.charge_timer.update()
+    
+    def execute(self):
+        self.charge_timer.reset()
+        if self.ready: raise ValueError('watahel bpi')
+
+    @property
+    def ready(self):
+        return self.charge_timer.done
+
+    def __repr__(self) -> str:
+        return f'Dash({self.ready=} {self.charge_timer})'
 
 class Player(PhysicsEntity):
 
     DASH_COOLDOWN = 20
     DASH_DURATION = 10
     DASH_SPEED = 9
+    DASH_DURATION = 20
+    DASH_SPEED = 1
 
     LOWEST_HIT_ALPHA = 100
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.timers = {}
+
         self.stab = None
         self.speed = 2
-        self.dash_cooldown_timer = Timer(Player.DASH_DURATION + Player.DASH_COOLDOWN, start=False)
-        self.dash_timer = Timer(Player.DASH_DURATION, start=False)
-        self.dash_timer.done = True
+        # self.dash_cooldown_timer = Timer(Player.DASH_DURATION + Player.DASH_COOLDOWN, start=False)
+        # self.dash_timer = Timer(Player.DASH_DURATION, start=False)
         self.stab_radius = 50
         self.invincible = False
-        self.dmg_timer = Timer(60, start=False)
+        self.timers['dmg'] = Timer(60, start=False)
+
+        # self.charge_speed = 30
+        # self.dashes = 99
+        self.dashes = [Dash(), Dash()]
+        # self.ready_dash_i = len(self.dashes) - 1
+        self.ready_dash_i = 0
+        self.timers['dash'] = Timer(Player.DASH_DURATION, start=False)
+        # self.timers['dash_charge'] = Timer()
 
     @property
     def img(self):
         base_img = super().img.copy()
-        if not self.dmg_timer.done:
+        if not self.timers['dmg'].done:
             base_img.set_alpha(Player.LOWEST_HIT_ALPHA + 0.5*(255 -
                 Player.LOWEST_HIT_ALPHA) + (255 -
-                    Player.LOWEST_HIT_ALPHA)*sin(self.dmg_timer.ratio*50))
+                    Player.LOWEST_HIT_ALPHA)*sin(self.timers['dmg'].ratio*50))
         return base_img
 
     def render(self, surf, *args, **kwargs):
@@ -67,8 +99,8 @@ class Player(PhysicsEntity):
     def update(self, offset, inputs, dangers, *args, **kwargs):
         output = {}
 
-        if not self.dash_timer.done:
-            if self.dash_timer.frame % 1 == 0:
+        if not self.timers['dash'].done:
+            if self.timers['dash'].frame % 1 == 0:
                 trail_surf = self.img.copy()
                 trail_surf.set_alpha(150)
                 trail = {
@@ -91,14 +123,21 @@ class Player(PhysicsEntity):
             elif inputs['held'].get('s'):
                 self.vel[1] += self.speed
 
-        # print(self.dash_cooldown_timer, self.dash_cooldown_timer.done)
-        # print(f'{self.vel=} {type(self.vel)}')
-        if inputs['pressed'].get('space') and self.dash_cooldown_timer.done and self.vel != (0, 0):
+        # if inputs['pressed'].get('space') and self.dash_cooldown_timer.done and self.vel != (0, 0):
+        self
+
+        if inputs['pressed'].get('space') and self.current_dash:
+            print('dashing')
+            self.current_dash.execute()
+            print(f'reseting dash {self.ready_dash_i}')
+            self.ready_dash_i -= 1
             self.max_vel = Player.DASH_SPEED
             self.vel = pygame.Vector2(self.vel)
+
+            from random import randint
+            self.vel = pygame.Vector2(randint(-16, 16), randint(-16, 16))
             self.vel.scale_to_length(Player.DASH_SPEED)
-            self.dash_timer.reset()
-            self.dash_cooldown_timer.reset()
+            self.timers['dash'].reset()
 
         if any(self.vel):
             self.animation.set_action('run')
@@ -108,7 +147,7 @@ class Player(PhysicsEntity):
 
         self.stab = inputs['pressed'].get('mouse1')
 
-        if self.dmg_timer.done:
+        if self.timers['dmg'].done:
             self.invincible = False
         for danger in dangers:
             if self.rect.colliderect(danger):
@@ -117,19 +156,31 @@ class Player(PhysicsEntity):
                     output = output | {'hit': True}
                 break
 
-        # TODO: Make dict for this
-        self.dash_cooldown_timer.update()
-        self.dash_timer.update()
-        self.dmg_timer.update()
+        if self.ready_dash_i < len(self.dashes) - 1:
+            next_dash = self.dashes[self.ready_dash_i + 1]
+            next_dash.update()
+            if next_dash.ready:
+                if self.ready_dash_i != len(self.dashes):
+                    print(f'{self.ready_dash_i} is ready')
+                    self.ready_dash_i += 1 
+
+        for timer in self.timers.values():
+            timer.update()
 
         super().update(*args, **kwargs)
         return output
+
+    @property
+    def current_dash(self):
+        if self.ready_dash_i < 0: return None
+
+        return self.dashes[self.ready_dash_i if self.ready_dash_i < len(self.dashes) else len(self.dashes) - 1]
 
     def take_dmg(self):
         if self.invincible:
             return
         self.invincible = True
-        self.dmg_timer.reset()
+        self.timers['dmg'].reset()
         return True
 
     def get_angle_pos(self, angle, radius=20):

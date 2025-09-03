@@ -170,11 +170,13 @@ class Game(State):
         text = [f'{round(self.handler.clock.get_fps())} fps',
                 f'vel = {self.player.vel}',
                 # pprint.pformat(Particle.cache)
+                f'{self.player.dashes=}',
+                f'{self.player.ready_dash_i=}',
                 ]
         self.handler.canvas.fill((16, 14, 18))
         self.handler.canvas.blit(self.game_surf)
         # self.game_map.offset = -self.player.pos + (250, 100)
         shader_handler.vars['gameOffset'] = self.game_map.offset[0] / config.CANVAS_SIZE[0], self.game_map.offset[1] / config.CANVAS_SIZE[1]
-        self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (400, 0))
+        self.handler.canvas.blit(FONTS['basic'].get_surf('\n'.join(text)), (300, 0))
 
 
