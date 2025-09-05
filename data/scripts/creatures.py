@@ -28,7 +28,7 @@ class Stab(Entity):
 
 class Dash:
 
-    DEFAULT_CHARGE_TIME = 60
+    DEFAULT_CHARGE_TIME = 20
 
     def __init__(self, duration=DEFAULT_CHARGE_TIME):
         self.duration = duration
@@ -53,8 +53,8 @@ class Player(PhysicsEntity):
     DASH_COOLDOWN = 20
     DASH_DURATION = 10
     DASH_SPEED = 9
-    DASH_DURATION = 20
-    DASH_SPEED = 1
+    DASH_DURATION = 10
+    DASH_SPEED = 8
 
     LOWEST_HIT_ALPHA = 100
 
@@ -123,10 +123,7 @@ class Player(PhysicsEntity):
             elif inputs['held'].get('s'):
                 self.vel[1] += self.speed
 
-        # if inputs['pressed'].get('space') and self.dash_cooldown_timer.done and self.vel != (0, 0):
-        self
-
-        if inputs['pressed'].get('space') and self.current_dash:
+        if inputs['pressed'].get('mouse1') and self.current_dash:
             print('dashing')
             self.current_dash.execute()
             print(f'reseting dash {self.ready_dash_i}')
@@ -134,8 +131,9 @@ class Player(PhysicsEntity):
             self.max_vel = Player.DASH_SPEED
             self.vel = pygame.Vector2(self.vel)
 
-            from random import randint
-            self.vel = pygame.Vector2(randint(-16, 16), randint(-16, 16))
+            vel = inputs['mouse pos'] - pygame.Vector2(self.rect.center) - offset
+
+            self.vel = vel
             self.vel.scale_to_length(Player.DASH_SPEED)
             self.timers['dash'].reset()
 
