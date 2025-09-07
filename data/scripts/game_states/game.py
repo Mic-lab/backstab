@@ -12,6 +12,7 @@ from .. import sfx
 from .. import screen, config
 from ..game_map import GameMap
 from ..health import Health
+import random
 import pygame
 import pygame.gfxdraw
 
@@ -97,6 +98,7 @@ class Game(State):
         for enemy in self.enemies:
             update_data = enemy.update(self.game_map, self.player, self.enemies, collisions)
             if update_data.get('dead'):
+                sfx.sounds[f'kill_{random.randint(1, 3)}.wav'].play()
                 self.dead_enemies.append(enemy)
                 stab_w = animation.Animation.animation_db['stab']['rect'].w
                 enemy.stab = Entity(enemy.rect.center- pygame.Vector2(stab_w, 6), 'stab', 'idle')
@@ -140,11 +142,12 @@ class Game(State):
         if update_data.get('hit'):
             self.timers['hit'].reset()
             self.health.change_hp(-1, self.gens)
+            sfx.sounds['hurt.wav'].play()
 
         shader_handler.vars['circles'] = [(self.player.rect.centerx / config.CANVAS_SIZE[0],
                                            self.player.rect.centery / config.CANVAS_SIZE[1],
                                            # (self.player.stab_radius-12+100) / config.CANVAS_SIZE[0], 1)]
-                                           (self.player.stab_radius-12) / config.CANVAS_SIZE[0], 1)]
+                                           (self.player.stab_radius-12) / config.CANVAS_SIZE[0], int(self.player.stab))]
 
         self.player.render(self.game_surf, self.game_map.offset)
 
@@ -170,7 +173,8 @@ class Game(State):
         text = [f'{round(self.handler.clock.get_fps())} fps',
                 f'vel = {self.player.vel}',
                 # pprint.pformat(Particle.cache)
-                f'{self.player.dashes=}',
+                f'{self.player.dashes[0]=}',
+                f'{self.player.dashes[1]=}',
                 f'{self.player.ready_dash_i=}',
                 ]
         self.handler.canvas.fill((16, 14, 18))

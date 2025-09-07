@@ -100,30 +100,35 @@ void main() {
                 //     continue;
                 // }
 
-                float shine = 0.5+0.5*(pow(abs(sin(uvsPx.y*20+uvsPx.x*10)*cos(uvsPx.y*15)), 4));
-                float shine2 = 1*(pow(abs(sin(uvsPx.y*10+uvsPx.x*25)*sin(uvsPx.x*10)), 4));
-                // float shine2 = 1*(pow(abs(sin(uvsPx.y*10*uvsPx.x*25)*sin(uvsPx.x*10)), 4));
-                // float shine2 = 0.1*(pow(abs(tan(uvsPx.y*10*uvsPx.x*25)), 1));
+                if (circles[i][3] == 0) {
+                    float shine = 0.5+0.5*(pow(abs(sin(uvsPx.y*20+uvsPx.x*10)*cos(uvsPx.y*15)), 4));
+                    float shine2 = 1*(pow(abs(sin(uvsPx.y*10+uvsPx.x*25)*sin(uvsPx.x*10)), 4));
+                    // float shine2 = 1*(pow(abs(sin(uvsPx.y*10*uvsPx.x*25)*sin(uvsPx.x*10)), 4));
+                    // float shine2 = 0.1*(pow(abs(tan(uvsPx.y*10*uvsPx.x*25)), 1));
 
-                // if (f_color.x+f_color.y < 0.3) {
-                //     f_color = vec4(0.5,0.5, 0.5, 0);
-                // }
-                // else {
-                // }
+                    // if (f_color.x+f_color.y < 0.3) {
+                    //     f_color = vec4(0.5,0.5, 0.5, 0);
+                    // }
+                    // else {
+                    // }
+                    f_color = mix(f_color, vec4(pow(1.5*shine, 1.5), 1.3*shine, 2.2*shine, 0), 0.7*shine);
+                    f_color = mix(f_color, vec4(0.8, shine2*0.5, shine2*2, 0), 0.5*shine2);
+                    // float shine_comb = shine + shine2;
 
-                f_color = mix(f_color, vec4(pow(1.5*shine, 1.5), 1.3*shine, 2.2*shine, 0), 0.7*shine);
+                    // if (shine_comb < 1 && shine_comb > 0.95){
+                    //     f_color = mix(f_color, vec4(1, 1, 0, 0), 0.7);
+                    // }
 
-                f_color = mix(f_color, vec4(0.8, shine2*0.5, shine2*2, 0), 0.5*shine2);
-
-                // float shine_comb = shine + shine2;
-
-                // if (shine_comb < 1 && shine_comb > 0.95){
-                //     f_color = mix(f_color, vec4(1, 1, 0, 0), 0.7);
-                // }
-
-                if (shine > 0.75 && shine < 0.8) {
-                    // f_color = mix(f_color, vec4(0.5, 1, 1, 0), shine);
-                    f_color = mix(f_color, vec4(0.5, 0.8, 1, 0), shine);
+                    if (shine > 0.75 && shine < 0.8) {
+                        // f_color = mix(f_color, vec4(0.5, 1, 1, 0), shine);
+                        f_color = mix(f_color, vec4(0.5, 0.8, 1, 0), shine);
+                    }
+                }
+                else if (circles[i][3] == 1) {
+                    float shine = 0.5+0.5*(pow(abs(sin(uvsPx.y*20+uvsPx.x*10)*cos(uvsPx.y*15)), 4));
+                    float shine2 = 1*(pow(abs(sin(uvsPx.y*10+uvsPx.x*25)*sin(uvsPx.x*10)), 4));
+                    f_color = mix(f_color, vec4(0.5*shine, 1.7*shine, 1*shine, 0), shine);
+                    // f_color = mix(f_color, vec4(0.8, shine2*0.5, shine2*2, 0), 0.5*shine2);
                 }
                 
             }

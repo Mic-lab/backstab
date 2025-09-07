@@ -26,6 +26,7 @@ IDEAS
         - minecraft vid with 10 pumpkins have to be mined by player. could do smoething similar
 
 TODO
+    - BUG: you can go out of bounds if you dash up from br to bt room
     - camera should stop the other way cause rn it doesn't work with big rooms
     - Fix pathfinding (not doing diagonals on walls)
     - animations and turn enemies when facing player

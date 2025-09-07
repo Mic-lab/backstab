@@ -5,7 +5,7 @@ from data.scripts import config
 from data.scripts.pathfinding import PathFinder
 from .animation import Animation
 from .entity import PhysicsEntity, Entity
-from .dash import Dash
+from .dash import AttackDash, Dash
 from math import pi, cos, sin
 from .timer import Timer
 from .particle import ParticleGenerator
@@ -33,7 +33,7 @@ class Player(PhysicsEntity):
     DASH_DURATION = 10
     DASH_SPEED = 9
     DASH_DURATION = 10
-    DASH_SPEED = 8
+    DASH_SPEED = 9
 
     LOWEST_HIT_ALPHA = 100
 
@@ -48,10 +48,21 @@ class Player(PhysicsEntity):
         self.timers['dmg'] = Timer(60, start=False)
 
         self.dashes = []
-        for _ in range(2): self.add_dash(Dash())
+        self.add_dash(
+            Dash(),
+        )
+        self.add_dash(
+            AttackDash(),
+        )
 
-        self.ready_dash_i = 0
+        self.ready_dash_i = -1
         self.timers['dash'] = Timer(Player.DASH_DURATION, start=False)
+
+    # @property
+    # def stab(self):
+    #     if self.stab_timer is not None:
+    #         if not self.stab_timer.done:
+    #             return True
 
     def add_dash(self, dash):
         self.dashes.append(dash)
@@ -69,10 +80,16 @@ class Player(PhysicsEntity):
         # if self.stab: self.stab.render(surf)
         s = pygame.Surface((self.stab_radius*2, self.stab_radius*2), pygame.SRCALPHA)
         offset = pygame.Vector2(args[0])  # Is this bad practice?
-        # pygame.draw.circle(s, (200, 200, 255), (self.stab_radius, self.stab_radius), self.stab_radius-12, width=2)  # removing from stab radius just to feel fair for player cause it uses enemy rect (FIXME)
-        s.set_alpha(50)
+        # if self.stab:
+        #     s.fill((0, 255, 200))
+            # removing from stab radius just to feel fair for player cause it uses enemy rect (FIXME)
+        s.set_alpha(100)
         surf.blit(s, self.rect.center+offset - pygame.Vector2(self.stab_radius, self.stab_radius))
+
         super().render(surf, *args, **kwargs)
+
+        for i, dash in enumerate(self.dashes):
+            dash.render(offset + self.rect.center + pygame.Vector2(10*i, 10), surf)
 
     def update(self, offset, inputs, dangers, *args, **kwargs):
         output = {}
@@ -88,6 +105,7 @@ class Player(PhysicsEntity):
                 }
                 output['trail'] = trail
         else:
+            self.stab = False
             self.max_vel = self.speed
             self.vel = pygame.Vector2()
             if inputs['held'].get('a'):
@@ -102,15 +120,18 @@ class Player(PhysicsEntity):
                 self.vel[1] += self.speed
 
         if inputs['pressed'].get('mouse1') and self.current_dash:
+            self.stab = False
             self.current_dash.execute(self, inputs['mouse pos'] - pygame.Vector2(offset))
 
-        if any(self.vel):
+        if self.stab:
+            self.animation.set_action('attack_dash')
+        elif any(self.vel):
             self.animation.set_action('run')
         else:
             self.animation.set_action('idle')
 
 
-        self.stab = inputs['pressed'].get('mouse1')
+        # self.stab = inputs['pressed'].get('mouse1')
 
         if self.timers['dmg'].done:
             self.invincible = False
@@ -193,7 +214,7 @@ class Enemy(PhysicsEntity):
         },
     }
     
-    def __init__(self, starting_view=0, view_width=0.1, *args, **kwargs):
+    def __init__(self, starting_view=0, view_width=0.2, *args, **kwargs):
         kwargs = Enemy.STATS[kwargs['name']]['entity'] | kwargs
         super().__init__(*args, **kwargs)
 
@@ -334,7 +355,6 @@ class Enemy(PhysicsEntity):
         super().render(surf, offset, *args, **kwargs)
 
         # Path finding displya
-
         if self.path:
             s = pygame.Surface(surf.get_size())
             s.set_colorkey((0, 0, 0))

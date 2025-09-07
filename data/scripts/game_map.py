@@ -228,7 +228,7 @@ class GameMap:
             room.enemies.extend([
                 BasicEnemy(pos=(30, 30), name='civilian', action='idle'),
                 BasicEnemy(pos=(40, 30), name='civilian', action='idle'),
-                Eye(pos=(50, 30), name='eye', action='opened'),
+                # Eye(pos=(50, 30), name='eye', action='opened'),
             ])
 
     def __init__(self):

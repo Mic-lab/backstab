@@ -6,6 +6,9 @@ from data.scripts.mgl import shader_handler
 from data.scripts import game_states
 from data.scripts.transition import Transition, TransitionState
 
+# pygame.mouse.set_cursor(*pygame.cursors.arrow)
+# pygame.mouse.set_cursor(*pygame.cursors.broken_x)
+
 class GameHandler:
 
     def __init__(self):
