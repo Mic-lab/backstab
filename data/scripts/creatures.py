@@ -5,6 +5,7 @@ from data.scripts import config
 from data.scripts.pathfinding import PathFinder
 from .animation import Animation
 from .entity import PhysicsEntity, Entity
+from .dash import Dash
 from math import pi, cos, sin
 from .timer import Timer
 from .particle import ParticleGenerator
@@ -26,28 +27,6 @@ class Stab(Entity):
         base_img = super().img
         return pygame.transform.rotate(base_img, self.angle)
 
-class Dash:
-
-    DEFAULT_CHARGE_TIME = 20
-
-    def __init__(self, duration=DEFAULT_CHARGE_TIME):
-        self.duration = duration
-        self.charge_timer = Timer(self.duration)
-
-    def update(self):
-        self.charge_timer.update()
-    
-    def execute(self):
-        self.charge_timer.reset()
-        if self.ready: raise ValueError('watahel bpi')
-
-    @property
-    def ready(self):
-        return self.charge_timer.done
-
-    def __repr__(self) -> str:
-        return f'Dash({self.ready=} {self.charge_timer})'
-
 class Player(PhysicsEntity):
 
     DASH_COOLDOWN = 20
@@ -64,19 +43,18 @@ class Player(PhysicsEntity):
 
         self.stab = None
         self.speed = 2
-        # self.dash_cooldown_timer = Timer(Player.DASH_DURATION + Player.DASH_COOLDOWN, start=False)
-        # self.dash_timer = Timer(Player.DASH_DURATION, start=False)
         self.stab_radius = 50
         self.invincible = False
         self.timers['dmg'] = Timer(60, start=False)
 
-        # self.charge_speed = 30
-        # self.dashes = 99
-        self.dashes = [Dash(), Dash()]
-        # self.ready_dash_i = len(self.dashes) - 1
+        self.dashes = []
+        for _ in range(2): self.add_dash(Dash())
+
         self.ready_dash_i = 0
         self.timers['dash'] = Timer(Player.DASH_DURATION, start=False)
-        # self.timers['dash_charge'] = Timer()
+
+    def add_dash(self, dash):
+        self.dashes.append(dash)
 
     @property
     def img(self):
@@ -124,18 +102,7 @@ class Player(PhysicsEntity):
                 self.vel[1] += self.speed
 
         if inputs['pressed'].get('mouse1') and self.current_dash:
-            print('dashing')
-            self.current_dash.execute()
-            print(f'reseting dash {self.ready_dash_i}')
-            self.ready_dash_i -= 1
-            self.max_vel = Player.DASH_SPEED
-            self.vel = pygame.Vector2(self.vel)
-
-            vel = inputs['mouse pos'] - pygame.Vector2(self.rect.center) - offset
-
-            self.vel = vel
-            self.vel.scale_to_length(Player.DASH_SPEED)
-            self.timers['dash'].reset()
+            self.current_dash.execute(self, inputs['mouse pos'] - pygame.Vector2(offset))
 
         if any(self.vel):
             self.animation.set_action('run')
@@ -156,7 +123,7 @@ class Player(PhysicsEntity):
 
         if self.ready_dash_i < len(self.dashes) - 1:
             next_dash = self.dashes[self.ready_dash_i + 1]
-            next_dash.update()
+            next_dash.update(self)
             if next_dash.ready:
                 if self.ready_dash_i != len(self.dashes):
                     print(f'{self.ready_dash_i} is ready')
@@ -167,6 +134,17 @@ class Player(PhysicsEntity):
 
         super().update(*args, **kwargs)
         return output
+
+    def dash(self, mouse_pos):
+        print('dashing')
+        print(f'reseting dash {self.ready_dash_i}')
+        self.ready_dash_i -= 1
+        self.max_vel = Player.DASH_SPEED
+        self.vel = pygame.Vector2(self.vel)
+        vel = mouse_pos - pygame.Vector2(self.rect.center)
+        self.vel = vel
+        self.vel.scale_to_length(Player.DASH_SPEED)
+        self.timers['dash'].reset()
 
     @property
     def current_dash(self):
@@ -184,7 +162,6 @@ class Player(PhysicsEntity):
     def get_angle_pos(self, angle, radius=20):
         return self.rect.center + radius*pygame.Vector2(sin(angle/180*pi),
                                                         cos(angle/180*pi))
-
     def update_stab_pos(self):
         # r = self.stab.rect.copy()
         r = pygame.Rect(0,0, *self.stab.img.get_size())
