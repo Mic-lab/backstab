@@ -58,12 +58,6 @@ class Player(PhysicsEntity):
         self.ready_dash_i = -1
         self.timers['dash'] = Timer(Player.DASH_DURATION, start=False)
 
-    # @property
-    # def stab(self):
-    #     if self.stab_timer is not None:
-    #         if not self.stab_timer.done:
-    #             return True
-
     def add_dash(self, dash):
         self.dashes.append(dash)
 

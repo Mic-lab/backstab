@@ -27,6 +27,8 @@ IDEAS
 
 TODO
     - BUG: you can go out of bounds if you dash up from br to bt room
+        - found out why: it's cause the player updates his position 1 frame before the room changes
+    - fullscreen: especially important to not click away from window
     - camera should stop the other way cause rn it doesn't work with big rooms
     - Fix pathfinding (not doing diagonals on walls)
     - animations and turn enemies when facing player

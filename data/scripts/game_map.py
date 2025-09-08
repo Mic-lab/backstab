@@ -68,6 +68,7 @@ class Tile(Entity):
 class DoorTile(Tile):
 
     def collide(self, entity: Entity, direction):
+        direction = self.name.split('_')[0]
         if isinstance(entity, Player):
             print(f'Collision with door ({self.name=})')
             game_map = entity.state_manager.game_map

@@ -1,6 +1,8 @@
 from . import sfx
 from .timer import Timer
 from .animation import Animation
+from .utils import swap_colors
+from .config import COLORS
 
 class DashOrb:
 
@@ -15,22 +17,24 @@ class DashOrb:
         if self.dash.ready:
             pass
         self.ratio = int((dash.charge_timer.ratio * DashOrb.MAX_ORB))
-        print(f'{self.ratio}')
-        self.img = Animation.img_db[f'orb_{self.ratio}']
+        print(f'{self.ratio} {self.dash.colors=}')
+
+        img_key = f'orb_{self.ratio}{self.dash.colors}'
+        if img_key not in Animation.img_db:
+            img = swap_colors(Animation.img_db[f'orb_{self.ratio}'], (100, 100, 100), self.dash.colors[0])
+            img = swap_colors(img, (255, 255, 255), self.dash.colors[1])
+            Animation.add_img(img, img_key)
+        self.img = Animation.img_db[img_key]
 
     def render(self, pos, surf):
         surf.blit(self.img, pos)
-
-    @property
-    def colors(self):
-        DashOrb.PRESETS[self.preset]
 
 class Dash:
 
     DEFAULT_CHARGE_TIME = 60
 
     def __init__(self, duration=DEFAULT_CHARGE_TIME,
-                 colors=((200, 200, 200), (240, 240, 240))):
+                 colors=(COLORS['dark gray'], COLORS['white'])):
         self.duration = duration
         self.charge_timer = Timer(self.duration)
         self.colors = colors
@@ -64,6 +68,10 @@ class Dash:
         return f'Dash({self.ready=} {self.charge_timer})'
 
 class AttackDash(Dash):
+
+    def __init__(self, *args, **kwargs):
+        kwargs['colors'] = (COLORS['dark green'], COLORS['green'])
+        super().__init__(*args, **kwargs)
     
     def special_execute(self, player, mouse_pos):
         print(f'Special execute')
