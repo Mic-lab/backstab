@@ -4,6 +4,8 @@ from .entity import Entity
 from . import config
 from . import utils
 from .animation import Animation
+from copy import deepcopy  
+import random
 from math import ceil
 import pygame
 
@@ -112,6 +114,14 @@ class Room:
     # for key in PLAYER_TRANSITION_POS:
     #     PLAYER_TRANSITION_POS[key] = (2*config.TILE_SIZE[0], 2*config.TILE_SIZE[0])
 
+    ADJ_OFFSETS = {
+        (-1, 0): ('left', 'right'),
+        (1, 0): ('right', 'left'),
+        (0, -1): ('top', 'bottom'),
+        (0, 1): ('bottom', 'top'),
+    }
+
+
     @classmethod
     def load_all_rooms(cls):
         print('[Importing rooms]')
@@ -147,6 +157,8 @@ class Room:
             'right': None, } | adj_rooms
 
     def load_content(self, id_):
+        # NOTE: Rooms should not share the same id, otherwise they will be
+        # pointing to the same tiles
         self.id = id_
         # self.room_size = (18+6, 12)
         self.room_size = (17, 9)
@@ -167,7 +179,7 @@ class Room:
 
 
     def update_connections(self):
-        print(f'updatin_con')
+        print(f'updating_connections {self.adj_rooms=}')
         for direction, room in self.adj_rooms.items():
             if not room:
                 continue
@@ -190,6 +202,8 @@ class Room:
 
     @property
     def tiles(self):
+        # TEMPORARY #####################################
+        # return deepcopy(list(self.rooms['all'][self.id[0]][self.id[1]].values())) 
         return self.rooms['all'][self.id[0]][self.id[1]].values()
 
     @property
@@ -225,8 +239,8 @@ class GameMap:
         self.map_rooms[2].adj_rooms |= {'top': self.map_rooms[0], 'right': self.map_rooms[3]}
         self.map_rooms[3].adj_rooms |= {'left': self.map_rooms[2], 'top': self.map_rooms[1]}
         
-        for room in self.map_rooms:
-            room.load_content(('normal', 3))
+        for i, room in enumerate(self.map_rooms):
+            room.load_content(('normal', i))
             room.update_connections()
             room.enemies.extend([
                 BasicEnemy(pos=(30, 30), name='civilian', action='idle'),
@@ -234,12 +248,39 @@ class GameMap:
                 # Eye(pos=(50, 30), name='eye', action='opened'),
             ])
 
-    # def generate_map(self):
-    #     # TODO: allow room to be created with directions stored but no content
-    #     room_count = 0
-    #     rooms = 16
-    #     while room_count < rooms:
-    #         pass
+    def generate_map(self):
+        # TODO: allow room to be created with directions stored but no content
+        starting_room = Room()
+        starting_room.load_content(('normal', 1))
+        rooms = { (0, 0): starting_room}
+        room_count = 0
+        rooms_max = 2
+        # NOTE: rooms_max can get exceeded
+        while room_count < rooms_max:
+
+            added_rooms = {}
+
+            # Get adjacent rooms
+            for room_pos, room in rooms.items():
+                
+                for adj_offset, str_direction in Room.ADJ_OFFSETS.items():
+                    adj_pos = (room_pos[0] + adj_offset[0], room_pos[1] + adj_offset[1])
+                    if adj_pos in rooms:
+                        continue
+
+                    added_room = Room()
+                    added_room.adj_rooms[str_direction[1]] = room
+                    room.adj_rooms[str_direction[0]] = added_room
+                    added_rooms[(adj_pos)] = added_room
+                    room_count += 1
+
+            rooms = rooms | added_rooms
+
+        for room in rooms.values():
+            room.load_content(('normal', random.randint(0, 3)))
+            room.update_connections()
+            
+        self.map_rooms = list(rooms.values())
 
 
     def __init__(self):
@@ -247,6 +288,7 @@ class GameMap:
         self.set_room(self.map_rooms[0])
 
     def set_room(self, room):
+        print(f'set_room {room}')
         self.room = room
         self.tiles = room.tiles
         self.room_px_size = room.room_px_size

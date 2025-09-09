@@ -17,7 +17,6 @@ class DashOrb:
         if self.dash.ready:
             pass
         self.ratio = int((dash.charge_timer.ratio * DashOrb.MAX_ORB))
-        print(f'{self.ratio} {self.dash.colors=}')
 
         img_key = f'orb_{self.ratio}{self.dash.colors}'
         if img_key not in Animation.img_db:

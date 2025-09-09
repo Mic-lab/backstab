@@ -26,6 +26,7 @@ IDEAS
         - minecraft vid with 10 pumpkins have to be mined by player. could do smoething similar
 
 TODO
+    - Store rooms in dict instead of list
     - BUG: you can go out of bounds if you dash up from br to bt room
         - found out why: it's cause the player updates his position 1 frame before the room changes
     - fullscreen: especially important to not click away from window

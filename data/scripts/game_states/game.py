@@ -14,7 +14,6 @@ from ..game_map import GameMap
 from ..health import Health
 import random
 import pygame
-import pygame.gfxdraw
 
 class Game(State):
 
