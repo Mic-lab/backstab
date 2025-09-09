@@ -4,7 +4,7 @@ JUICE
     - shader bg
 
 IDEAS
-
+    - race section
     - Broken doors
         - Room when you enter it the door behinds you close and youre stuck!
             - not sure how to expand upon this

@@ -138,7 +138,15 @@ class Room:
             self.grid[y][x] = 1
 
 
-    def __init__(self, id_, adj_rooms=None):
+    def __init__(self, adj_rooms=None):
+        if adj_rooms is None: adj_rooms = {}
+        self.adj_rooms = {
+            'top': None,
+            'bottom': None,
+            'left': None,
+            'right': None, } | adj_rooms
+
+    def load_content(self, id_):
         self.id = id_
         # self.room_size = (18+6, 12)
         self.room_size = (17, 9)
@@ -157,16 +165,9 @@ class Room:
         )
         self.enemies = []
 
-        if adj_rooms is None: adj_rooms = {}
-        self.adj_rooms = {
-            'top': None,
-            'bottom': None,
-            'left': None,
-            'right': None, } | adj_rooms
-
-        self.update_connections()
 
     def update_connections(self):
+        print(f'updatin_con')
         for direction, room in self.adj_rooms.items():
             if not room:
                 continue
@@ -213,10 +214,10 @@ class GameMap:
 
     def generate_map(self):
         self.map_rooms = [
-            Room(('normal', 0)),
-            Room(('normal', 1)),
-            Room(('normal', 2)),
-            Room(('normal', 3)),
+            Room(),
+            Room(),
+            Room(),
+            Room(),
         ]
 
         self.map_rooms[0].adj_rooms |= {'right': self.map_rooms[1], 'bottom': self.map_rooms[2]}
@@ -225,12 +226,21 @@ class GameMap:
         self.map_rooms[3].adj_rooms |= {'left': self.map_rooms[2], 'top': self.map_rooms[1]}
         
         for room in self.map_rooms:
+            room.load_content(('normal', 3))
             room.update_connections()
             room.enemies.extend([
                 BasicEnemy(pos=(30, 30), name='civilian', action='idle'),
                 BasicEnemy(pos=(40, 30), name='civilian', action='idle'),
                 # Eye(pos=(50, 30), name='eye', action='opened'),
             ])
+
+    # def generate_map(self):
+    #     # TODO: allow room to be created with directions stored but no content
+    #     room_count = 0
+    #     rooms = 16
+    #     while room_count < rooms:
+    #         pass
+
 
     def __init__(self):
         self.generate_map()
