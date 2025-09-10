@@ -170,6 +170,7 @@ class Game(State):
 
 
         text = [f'{round(self.handler.clock.get_fps())} fps',
+                f'{self.game_map.room.coord=}',
                 f'vel = {self.player.vel}',
                 # pprint.pformat(Particle.cache)
                 f'{self.player.dashes[0]=}',

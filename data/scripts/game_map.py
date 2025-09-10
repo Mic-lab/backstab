@@ -203,12 +203,29 @@ class Room:
     @property
     def tiles(self):
         # TEMPORARY #####################################
+        # if hasattr(self, 'tiles_'):
+        #     return self.tiles_
+        # else:
+        #     self.tiles_ = deepcopy(list(self.rooms['all'][self.id[0]][self.id[1]].values())) 
+        #     return self.tiles_
         # return deepcopy(list(self.rooms['all'][self.id[0]][self.id[1]].values())) 
+        return list(self.tiles_dict.values())
+        ################################################
+
         return self.rooms['all'][self.id[0]][self.id[1]].values()
 
     @property
     def tiles_dict(self):
-        return self.rooms['all'][self.id[0]][self.id[1]]
+        # TEMPORARY #####################################
+        if hasattr(self, 'tiles_dict_'):
+            return self.tiles_dict_
+        else:
+            self.tiles_dict_ = deepcopy(self.rooms['all'][self.id[0]][self.id[1]])
+            return self.tiles_dict_
+        # ###############################################
+
+
+        # return self.rooms['all'][self.id[0]][self.id[1]]
 
 class GameMap:
 
@@ -254,7 +271,8 @@ class GameMap:
         starting_room.load_content(('normal', 1))
         rooms = { (0, 0): starting_room}
         room_count = 0
-        rooms_max = 2
+        rooms_max = 12
+        rooms_max = 5
         # NOTE: rooms_max can get exceeded
         while room_count < rooms_max:
 
@@ -265,23 +283,35 @@ class GameMap:
                 
                 for adj_offset, str_direction in Room.ADJ_OFFSETS.items():
                     adj_pos = (room_pos[0] + adj_offset[0], room_pos[1] + adj_offset[1])
-                    if adj_pos in rooms:
+                    if adj_pos in rooms or adj_pos in added_rooms:
                         continue
 
                     added_room = Room()
+                    # NOTE: This won't connect to every room, just the one it looped from
                     added_room.adj_rooms[str_direction[1]] = room
                     room.adj_rooms[str_direction[0]] = added_room
                     added_rooms[(adj_pos)] = added_room
+
+                    # if adj_pos in ((-1, -1), (-1, 0)):
+                    #     print(f'{adj_pos} {added_room.adj_rooms=}')
+                    # print(f'{adj_pos=}')
+                    # print(f'    connecting with ')
+
                     room_count += 1
 
             rooms = rooms | added_rooms
 
-        for room in rooms.values():
-            room.load_content(('normal', random.randint(0, 3)))
+        for key, room in rooms.items():
+            room.coord = key
+            room.load_content(('normal', 1))
             room.update_connections()
+
+        for room in rooms.values():
+            pass
+            # print(f'{room.coord=} {room.adj_rooms=} {room.id=}') 
+            # print(f'{room.coord=} {room.id=}') 
             
         self.map_rooms = list(rooms.values())
-
 
     def __init__(self):
         self.generate_map()

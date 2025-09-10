@@ -94,7 +94,7 @@ TILE_SIZE = 24
 BASE_PAN = (2, 50)
 PAN = 2
 
-config.scale = 3
+config.scale = 2
 config.screen_size = Vec2(config.CANVAS_SIZE) * config.scale
 screen = pygame.display.set_mode(config.screen_size)
 canvas = pygame.Surface(config.CANVAS_SIZE + Vec2(0, BORDER_W))
@@ -146,7 +146,7 @@ while running:
         rooms['all'][room_id[0]].append([])
     map_tiles = rooms['all'][room_id[0]][room_id[1]]
 
-    if inputs['held'].get('mouse2'):
+    if (inputs['held'].get('mouse2')) or inputs['held'].get('left shift'):
         delta = Vec2(mx, my) - Vec2(old_mx, old_my)
         scroll += delta
 
