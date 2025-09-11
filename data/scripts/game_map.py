@@ -1,5 +1,5 @@
 from copy import deepcopy
-from .creatures import Player, BasicEnemy, Eye
+from .creatures import Enemy, Player, BasicEnemy, Eye
 from .entity import Entity
 from . import config
 from . import utils
@@ -272,46 +272,83 @@ class GameMap:
         rooms = { (0, 0): starting_room}
         room_count = 0
         rooms_max = 12
-        rooms_max = 5
+        # rooms_max = 5
         # NOTE: rooms_max can get exceeded
         while room_count < rooms_max:
 
-            added_rooms = {}
-
+            possible_added_rooms = []
             # Get adjacent rooms
             for room_pos, room in rooms.items():
                 
                 for adj_offset, str_direction in Room.ADJ_OFFSETS.items():
                     adj_pos = (room_pos[0] + adj_offset[0], room_pos[1] + adj_offset[1])
-                    if adj_pos in rooms or adj_pos in added_rooms:
+
+                    # Can't add room if it's already occupied
+                    if adj_pos in rooms:
                         continue
 
-                    added_room = Room()
-                    # NOTE: This won't connect to every room, just the one it looped from
-                    added_room.adj_rooms[str_direction[1]] = room
-                    room.adj_rooms[str_direction[0]] = added_room
-                    added_rooms[(adj_pos)] = added_room
+                    # Can't add room if it connects to other rooms
+                    connecting = False
+                    for adj_offset_2 in Room.ADJ_OFFSETS:
+                        adj_pos_2 = (adj_pos[0] + adj_offset_2[0], adj_pos[1] + adj_offset_2[1])
+                        if adj_pos_2 == room_pos: continue
+                        elif adj_pos_2 in rooms:
+                            connecting = True
+                            break
+                    if connecting:
+                        continue
 
-                    # if adj_pos in ((-1, -1), (-1, 0)):
-                    #     print(f'{adj_pos} {added_room.adj_rooms=}')
-                    # print(f'{adj_pos=}')
-                    # print(f'    connecting with ')
 
-                    room_count += 1
+                    possible_added_rooms.append((adj_pos, room, str_direction))
 
-            rooms = rooms | added_rooms
+            added_room_pos, added_room_parent, added_room_directions = random.choice(possible_added_rooms)
+            added_room = Room()
+            added_room.adj_rooms[added_room_directions[1]] = added_room_parent
+            added_room_parent.adj_rooms[added_room_directions[0]] = added_room
+            rooms[added_room_pos] = added_room
+            room_count += 1
 
+            # rooms = rooms | added_rooms
+
+        all_room_coords = []
         for key, room in rooms.items():
+            all_room_coords.append(key)
             room.coord = key
-            room.load_content(('normal', 1))
+            room.load_content(('normal', random.randint(0, 3)))
+            if random.randint(1, 2) == 1:
+                room.enemies = [
+                    BasicEnemy(pos=(40, 30), name='civilian', action='idle'),
+                    BasicEnemy(pos=(40, 30), name='civilian', action='idle'),
+                    BasicEnemy(pos=(40, 30), name='civilian', action='idle'),
+                    Eye(pos=(50, 30), name='eye', action='opened'),
+                    Eye(pos=(50, 30), name='eye', action='opened'),
+                ]
             room.update_connections()
 
-        for room in rooms.values():
-            pass
-            # print(f'{room.coord=} {room.adj_rooms=} {room.id=}') 
-            # print(f'{room.coord=} {room.id=}') 
-            
         self.map_rooms = list(rooms.values())
+
+        # generate map surf (temporary) ---------------------------------------- #
+        offset = (min(all_room_coords, key=lambda e: e[0])[0], min(all_room_coords, key=lambda e: e[1])[1])
+        map_width = max(all_room_coords, key=lambda e: e[0])[0] - offset[0] + 1
+        map_height = max(all_room_coords, key=lambda e: e[1])[1] - offset[1] + 1
+        tile_size = 12
+        self.tile_size = tile_size
+        self.surf = pygame.Surface((map_width*tile_size, map_height*tile_size))
+        self.surf_pos = (4, 32)
+        self.map_offset = pygame.Vector2(offset)
+        self.surf.set_colorkey((0, 0, 0))
+        for room_coord in all_room_coords:
+            room_coord = list(room_coord)
+            room_coord[0] -= offset[0]
+            room_coord[1] -= offset[1]
+            room_coord[0] *= tile_size
+            room_coord[1] *= tile_size
+            pygame.draw.rect(self.surf, (100, 100, 150), pygame.Rect(*room_coord, tile_size, tile_size))
+            pygame.draw.rect(self.surf, config.COLORS['ground'], pygame.Rect(*room_coord, tile_size, tile_size), width=1)
+
+        # self.surf.fill((255, 0, 0))
+        print(self.surf.get_size(), '<---')
+
 
     def __init__(self):
         self.generate_map()

@@ -29,6 +29,7 @@ class Stab(Entity):
 
 class Player(PhysicsEntity):
 
+    DASH_ORB_SIZE = Animation.img_db['orb_0'].get_size()
     DASH_COOLDOWN = 20
     DASH_DURATION = 10
     DASH_SPEED = 9
@@ -82,8 +83,10 @@ class Player(PhysicsEntity):
 
         super().render(surf, *args, **kwargs)
 
+
+        # TODO: Make the obs centered (this doesnt work very nicely cause of the panning)
         for i, dash in enumerate(self.dashes):
-            dash.render(offset + self.rect.center + pygame.Vector2(10*i, 10), surf)
+            dash.render(offset + self.rect.center + pygame.Vector2((Player.DASH_ORB_SIZE[0]+1)*i, 10) - (Player.DASH_ORB_SIZE[0]*0.5*len(self.dashes), 0), surf)
 
     def update(self, offset, inputs, dangers, *args, **kwargs):
         output = {}

@@ -4,6 +4,9 @@ JUICE
     - shader bg
 
 IDEAS
+    - immediate feedback on enemy
+        - direction red particles (direction of dash)
+        - checkerboard pattern on enemy
     - race section
     - Broken doors
         - Room when you enter it the door behinds you close and youre stuck!

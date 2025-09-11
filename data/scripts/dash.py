@@ -31,7 +31,7 @@ class DashOrb:
 class Dash:
 
     DEFAULT_CHARGE_TIME = 60
-    DEFAULT_CHARGE_TIME = 20
+    # DEFAULT_CHARGE_TIME = 20
 
     def __init__(self, duration=DEFAULT_CHARGE_TIME,
                  colors=(COLORS['dark gray'], COLORS['white'])):

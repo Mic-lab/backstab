@@ -150,9 +150,17 @@ class Game(State):
 
         self.player.render(self.game_surf, self.game_map.offset)
 
-
         self.health.update()
         self.health.render(self.game_surf)
+
+        map_surf = self.game_map.surf.copy()
+        rect = pygame.Rect(
+            *self.game_map.tile_size*(pygame.Vector2(self.game_map.room.coord) - self.game_map.map_offset),
+
+            self.game_map.tile_size, self.game_map.tile_size
+        )
+        pygame.draw.rect(map_surf, (200, 200, 200), rect)
+        self.game_surf.blit(map_surf, self.game_map.surf_pos)
 
         self.gens = ParticleGenerator.update_generators(self.gens)
         for particle_gen in self.gens:
@@ -171,11 +179,11 @@ class Game(State):
 
         text = [f'{round(self.handler.clock.get_fps())} fps',
                 f'{self.game_map.room.coord=}',
-                f'vel = {self.player.vel}',
+                # f'vel = {self.player.vel}',
                 # pprint.pformat(Particle.cache)
-                f'{self.player.dashes[0]=}',
-                f'{self.player.dashes[1]=}',
-                f'{self.player.ready_dash_i=}',
+                # f'{self.player.dashes[0]=}',
+                # f'{self.player.dashes[1]=}',
+                # f'{self.player.ready_dash_i=}',
                 ]
         self.handler.canvas.fill((16, 14, 18))
         self.handler.canvas.blit(self.game_surf)
